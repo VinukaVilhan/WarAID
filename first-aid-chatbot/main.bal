@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-final string GOOGLE_API_KEY = "AIzaSyD785AjidwGdXkvMxlbMPjoCd0y--9I5Q0"; // Replace with your actual API key
+final string GOOGLE_API_KEY = ""; // Replace with your actual API key
 
 http:Client googleApiClient = check new("https://generativelanguage.googleapis.com");
 

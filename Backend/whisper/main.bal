@@ -1,18 +1,51 @@
-import ballerina/io;
+import ballerina/http;
+import ballerina/mime;
 import ballerinax/openai.audio;
 
 configurable string openAIToken = ?;
-configurable string AUDIO_FILE_PATH = ?;
 
-public function main() returns error? {
-    // Creates a request to transcribe the audio file to text (English)
-    audio:CreateTranscriptionRequest transcriptionReq = {
-        file: {fileContent: check io:fileReadBytes(AUDIO_FILE_PATH), fileName: "lg.mp3"},
-        model: "whisper-1"
-    };
+@http:ServiceConfig {
+    cors: {
+        allowOrigins: ["http://localhost:5173"],
+        allowCredentials: false,
+        allowHeaders: ["Content-Type"],
+        allowMethods: ["POST", "OPTIONS"]
+    }
+}
+service /transcribe on new http:Listener(8080) {
+    resource function post audio(http:Request request) returns json|error {
+        mime:Entity[] bodyParts = check request.getBodyParts();
+        if bodyParts.length() == 0 {
+            return error("No file uploaded");
+        }
 
-    // Transcribes the audio file to text (English)
-    audio:Client openAIAudio = check new ({auth: {token: openAIToken}});
-    audio:CreateTranscriptionResponse transcriptionRes = check openAIAudio->/audio/transcriptions.post(transcriptionReq);
-    io:println("Transcribed text: ", transcriptionRes.text);
+        mime:Entity audioPart = bodyParts[0];
+        byte[] audioBytes = check audioPart.getByteArray();
+        string? contentType = audioPart.getContentType();
+        
+        mime:ContentDisposition contentDisposition = audioPart.getContentDisposition();
+        string fileName = contentDisposition.fileName is string ? contentDisposition.fileName : "audio.webm";
+
+        if contentType is string {
+            if !contentType.startsWith("audio/") {
+                return error("Invalid content type. Expected audio file.");
+            }
+        } else {
+            return error("Content type not specified");
+        }
+
+        audio:CreateTranscriptionRequest transcriptionReq = {
+            file: {fileContent: audioBytes, fileName: fileName},
+            model: "whisper-1"
+        };
+
+        audio:Client openAIAudio = check new ({auth: {token: openAIToken}});
+        audio:CreateTranscriptionResponse|error transcriptionRes = openAIAudio->/audio/transcriptions.post(transcriptionReq);
+
+        if transcriptionRes is error {
+            return error("Error in transcription: " + transcriptionRes.message());
+        }
+
+        return {transcription: transcriptionRes.text};
+    }
 }

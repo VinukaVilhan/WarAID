@@ -7,9 +7,9 @@ function AppRouter() {
   return (
     <Router>
       <Routes>
-        <Route path='/AudioTranscription' element={<AudioTranscriptionPage/>}/>
-        <Route path="/ChatBot" element={<ChatBot />} />
         <Route path="/" element={<Home />} />
+        <Route path="/ChatBot" element={<ChatBot />} />
+        <Route path="/AudioTranscription" element={<AudioTranscriptionPage />} />
       </Routes>
     </Router>
   );

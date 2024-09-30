@@ -20,6 +20,7 @@ service / on new http:Listener(8080) {
 
         string queryParams = string `/search-news?
         text=(Israel+AND+Hamas)+OR+(Gaza+AND+war)+OR+(Palestinian+AND+conflict)+OR+(humanitarian+AND+crisis)
+        &entities=
         &language=en
         &sort=publish-time
         &sort-direction=DESC

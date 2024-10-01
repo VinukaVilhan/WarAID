@@ -8,6 +8,7 @@ export default [
   { ignores: ['dist'] },
   {
     files: ['**/*.{js,jsx}'],
+    loader: { '.js': 'jsx' },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,

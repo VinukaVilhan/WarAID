@@ -4,11 +4,14 @@ import Home from './components/Home'
 import ChatBot from './components/ChatBot'
 import Documentation from './components/Documentation'
 import ResourceLocator from './components/ResourceLocator'
+import LocationForm from './components/LocationForm';
+
 
 function App() {
 
 
   return (
+    
     <Router>
       <Routes>
         <Route path="/" element={<Home/>}/>
@@ -18,6 +21,7 @@ function App() {
         
       </Routes>
     </Router>
+    
 
   )
 }

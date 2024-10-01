@@ -1,6 +1,6 @@
 import { AuthProvider } from "@asgardeo/auth-react";
 import AppRouter from './router';
-import Header from "./components/Header";
+
 import './App.css';
 
 const authConfig = {
@@ -13,7 +13,7 @@ const authConfig = {
 
 const App = () => (
     <AuthProvider config={authConfig}>
-        <Header />
+      
         <AppRouter />
     </AuthProvider>
 );

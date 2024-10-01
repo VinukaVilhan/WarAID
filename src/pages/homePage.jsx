@@ -1,7 +1,9 @@
 import React from 'react';
 import { MapPin, Upload, Info } from 'lucide-react';
+import { useAuthContext } from '@asgardeo/auth-react';
 
 const HomePage = () => {
+  const { state, signIn, signOut } = useAuthContext();
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Navigation Bar */}
@@ -30,7 +32,21 @@ const HomePage = () => {
             </a>
           </div>
           <div>
-            <a href="#" className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 lg:mt-0">Login/Signup</a>
+            {state?.isAuthenticated ? (
+              <button
+                onClick={() => signOut()}
+                className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 lg:mt-0"
+              >
+                Logout
+              </button>
+            ) : (
+              <button
+                onClick={() => signIn()}
+                className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 lg:mt-0"
+              >
+                Login/Signup
+              </button>
+            )}
           </div>
         </div>
       </nav>

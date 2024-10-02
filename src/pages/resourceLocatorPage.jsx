@@ -1,13 +1,12 @@
-import Chatbot from "../components/chatBot";
 import Navbar from "../components/ui/Navbar";
 
-function chatBot(){
+function ResourceLocatorPage(){
     return (
         <div>
           <Navbar/>
-          <Chatbot />
+     
         </div>
       );
 }
 
-export default chatBot;
+export default ResourceLocatorPage;

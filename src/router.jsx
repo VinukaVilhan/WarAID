@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ChatBot from './pages/chatBotPage';
 import Home from './pages/homePage';
-import AudioTranscriptionPage from './pages/audioTransciptionPage';
-import NewsPage from './pages/newsPage';
+import DocumentationToolPage from './pages/DocumentationToolPage';
+import ResourceLocatorPage from './pages/resourceLocatorPage';
 
 function AppRouter() {
   return (
@@ -10,8 +10,8 @@ function AppRouter() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/ChatBot" element={<ChatBot />} />
-        <Route path="/AudioTranscription" element={<AudioTranscriptionPage />} />
-        <Route path="/News" element={<NewsPage />}/>
+        <Route path="/Documentation" element={<DocumentationToolPage />} />
+        <Route path='/ResourceLocator' element={<ResourceLocatorPage/>}/>
         
       </Routes>
     </Router>

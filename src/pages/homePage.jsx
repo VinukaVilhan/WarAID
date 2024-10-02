@@ -1,15 +1,13 @@
 import React from 'react';
-import { MapPin, Upload, Info } from 'lucide-react';
+import { MapPin, Upload, Info, Newspaper } from 'lucide-react';
 import Navbar from '../components/ui/Navbar';
+import NewsComponent from '../components/newsComponent';
 
 const HomePage = () => {
- 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Navigation Bar */}
       <Navbar/>
 
-      {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         {/* About Us Section */}
         <section className="mb-12">
@@ -83,6 +81,18 @@ const HomePage = () => {
                 Open Resource Map
               </button>
             </div>
+          </div>
+        </section>
+
+        {/* News Section */}
+        <section className="mb-12">
+          <h2 className="text-3xl font-bold mb-4">Latest News</h2>
+          <div className="bg-white shadow-md rounded-lg p-6">
+            <div className="flex items-center mb-4">
+              <Newspaper className="text-blue-500 mr-2" />
+              <h3 className="text-xl font-semibold">Conflict Updates</h3>
+            </div>
+            <NewsComponent />
           </div>
         </section>
       </div>

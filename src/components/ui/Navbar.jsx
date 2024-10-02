@@ -27,7 +27,7 @@ const Navbar = () => {
           <a href="/" className="block mt-4 lg:inline-block lg:mt-0 text-blue-200 hover:text-white mr-4">
             Homepage
           </a>
-          <a href="/res" className="block mt-4 lg:inline-block lg:mt-0 text-blue-200 hover:text-white mr-4">
+          <a href="/ResourceLocator" className="block mt-4 lg:inline-block lg:mt-0 text-blue-200 hover:text-white mr-4">
             Resource Locator
           </a>
           <a href="/Documentation" className="block mt-4 lg:inline-block lg:mt-0 text-blue-200 hover:text-white mr-4">

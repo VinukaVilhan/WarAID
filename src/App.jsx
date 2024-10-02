@@ -1,11 +1,7 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import "./App.css";
-import Home from "./components/Home";
-import ChatBot from "./components/ChatBot";
-import Documentation from "./components/Documentation";
-import ResourceLocator from "./components/ResourceLocator";
 import { AuthProvider } from "@asgardeo/auth-react";
-import Header from "./components/Header";
+import AppRouter from './router';
+
+import './App.css';
 
 const authConfig = {
     signInRedirectURL: "http://localhost:5173/",
@@ -15,25 +11,10 @@ const authConfig = {
     scope: ["openid", "profile"],
 };
 
-const AppContent = () => {
-    return (
-        <>
-            <Header />
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/ChatBot" element={<ChatBot />} />
-                <Route path="/Documentation" element={<Documentation />} />
-                <Route path="/ResourceLocator" element={<ResourceLocator />} />
-            </Routes>
-        </>
-    );
-};
-
 const App = () => (
     <AuthProvider config={authConfig}>
-        <Router>
-            <AppContent />
-        </Router>
+      
+        <AppRouter />
     </AuthProvider>
 );
 

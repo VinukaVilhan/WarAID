@@ -11,11 +11,12 @@ const authConfig = {
     scope: ["openid", "profile"],
 };
 
-const App = () => (
-    <AuthProvider config={authConfig}>
-      
-        <AppRouter />
-    </AuthProvider>
+const App = () => ( 
+        <AuthProvider config={authConfig}>
+            <AppRouter />
+        </AuthProvider>
 );
+    
+    
 
 export default App;

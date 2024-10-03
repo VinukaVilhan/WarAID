@@ -2,6 +2,7 @@ import React from 'react';
 import { MapPin, Upload, Info, Newspaper } from 'lucide-react';
 import Navbar from '../components/ui/Navbar';
 import NewsComponent from '../components/newsComponent';
+import { Link } from 'react-router-dom';
 
 const HomePage = () => {
   return (
@@ -48,6 +49,13 @@ const HomePage = () => {
                 <p className="text-sm">Submit written accounts and information</p>
               </div>
             </div>
+            <div className="mt-6">
+            <Link to="/Documentation">
+              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Open Documentation Tool
+              </button>
+            </Link>
+            </div>
           </div>
         </section>
 
@@ -77,9 +85,11 @@ const HomePage = () => {
               </div>
             </div>
             <div className="mt-6">
+            <Link to="/ResourceLocator">
               <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Open Resource Map
+                Resource Locator
               </button>
+            </Link>
             </div>
           </div>
         </section>

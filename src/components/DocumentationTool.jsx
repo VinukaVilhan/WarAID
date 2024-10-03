@@ -1,7 +1,12 @@
 import React, { useState, useRef } from "react";
 import { Mic, MicOff, FileText, Loader, Upload } from "lucide-react";
+import { useAuthContext } from "@asgardeo/auth-react";
 
 function DocumentationTool() {
+
+    const { state } = useAuthContext();
+    const username = state.username || "anonymous";
+
     // State for audio recording and transcription
     const [isRecording, setIsRecording] = useState(false);
     const [audioURL, setAudioURL] = useState("");
@@ -66,6 +71,7 @@ function DocumentationTool() {
 
         const formData = new FormData();
         formData.append("transcription", new Blob([transcription], { type: "text/plain" }), "transcription.txt");
+        
 
         try {
             const response = await fetch("http://localhost:8080/upload/transcription", {
@@ -96,6 +102,7 @@ function DocumentationTool() {
         });
         const formData = new FormData();
         formData.append("audio", audioBlob, "audio.webm");
+        formData.append("username", username);
 
         try {
             const response = await fetch(
@@ -136,6 +143,7 @@ function DocumentationTool() {
 
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("username", username);
 
         try {
             const response = await fetch("http://localhost:8080/upload", {

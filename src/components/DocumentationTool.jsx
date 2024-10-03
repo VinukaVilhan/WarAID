@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Mic, MicOff, FileText, Loader, Upload } from "lucide-react";
 
-function CombinedTool() {
+function DocumentationTool() {
     // State for audio recording and transcription
     const [isRecording, setIsRecording] = useState(false);
     const [audioURL, setAudioURL] = useState("");
@@ -319,4 +319,4 @@ function CombinedTool() {
     );
 }
 
-export default CombinedTool;
+export default DocumentationTool;

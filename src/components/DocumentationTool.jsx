@@ -126,7 +126,7 @@ function CombinedTool() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md my-auto">
+        <div className="max-w-2xl mx-auto my-4 p-6 bg-white rounded-lg shadow-md">
             <h2 className="text-3xl font-bold mb-6 text-gray-800">
                 Audio Transcription & File Upload
             </h2>

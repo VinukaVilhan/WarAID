@@ -1,7 +1,11 @@
 import React, { useState, useRef } from "react";
 import { Mic, MicOff, FileText, Loader, Upload } from "lucide-react";
+import { useAuthContext } from "@asgardeo/auth-react";
 
 function CombinedTool() {
+    const { state } = useAuthContext();
+    const username = state.username || "anonymous";
+
     // State for audio recording and transcription
     const [isRecording, setIsRecording] = useState(false);
     const [audioURL, setAudioURL] = useState("");
@@ -61,6 +65,7 @@ function CombinedTool() {
         });
         const formData = new FormData();
         formData.append("audio", audioBlob, "audio.webm");
+        formData.append("username", username);
 
         try {
             const response = await fetch(
@@ -101,6 +106,7 @@ function CombinedTool() {
 
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("username", username);
 
         try {
             const response = await fetch("http://localhost:8080/upload", {
@@ -204,10 +210,10 @@ function CombinedTool() {
                     type="file"
                     onChange={handleFileChange}
                     className="file:mr-4 file:py-2 file:px-4
-          file:rounded-full file:border-0
-          file:text-sm file:font-semibold
-          file:bg-violet-50 file:text-violet-700
-          hover:file:bg-violet-100"
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-violet-50 file:text-violet-700
+                    hover:file:bg-violet-100"
                 />
                 <button
                     onClick={uploadFile}

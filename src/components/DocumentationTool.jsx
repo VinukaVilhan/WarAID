@@ -1,11 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Mic, MicOff, FileText, Loader, Upload } from "lucide-react";
-import { useAuthContext } from "@asgardeo/auth-react";
 
 function CombinedTool() {
-    const { state } = useAuthContext();
-    const username = state.username || "anonymous";
-
     // State for audio recording and transcription
     const [isRecording, setIsRecording] = useState(false);
     const [audioURL, setAudioURL] = useState("");
@@ -18,6 +14,9 @@ function CombinedTool() {
     const [file, setFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState("");
+    const [isUploadingTranscription, setIsUploadingTranscription] = useState(false);
+    const [transcriptionUploadStatus, setTranscriptionUploadStatus] = useState("");
+
 
     // Functions for audio recording and transcription
     const startRecording = async () => {
@@ -56,6 +55,38 @@ function CombinedTool() {
         }
     };
 
+    const uploadTranscription = async () => {
+        if (!transcription) {
+            setTranscriptionUploadStatus("No transcription to upload.");
+            return;
+        }
+
+        setIsUploadingTranscription(true);
+        setTranscriptionUploadStatus("");
+
+        const formData = new FormData();
+        formData.append("transcription", new Blob([transcription], { type: "text/plain" }), "transcription.txt");
+
+        try {
+            const response = await fetch("http://localhost:8080/upload/transcription", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.text();
+            setTranscriptionUploadStatus(result);
+        } catch (error) {
+            console.error("Error uploading transcription:", error);
+            setTranscriptionUploadStatus(`Error uploading transcription: ${error.message}`);
+        } finally {
+            setIsUploadingTranscription(false);
+        }
+    };
+
     const sendAudioForTranscription = async () => {
         if (audioChunksRef.current.length === 0) return;
 
@@ -65,7 +96,6 @@ function CombinedTool() {
         });
         const formData = new FormData();
         formData.append("audio", audioBlob, "audio.webm");
-        formData.append("username", username);
 
         try {
             const response = await fetch(
@@ -106,7 +136,6 @@ function CombinedTool() {
 
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("username", username);
 
         try {
             const response = await fetch("http://localhost:8080/upload", {
@@ -190,7 +219,7 @@ function CombinedTool() {
                     </div>
                 )}
 
-                {transcription && (
+{transcription && (
                     <div className="mt-6">
                         <h3 className="text-lg font-semibold mb-2 text-gray-700">
                             Transcription:
@@ -198,6 +227,32 @@ function CombinedTool() {
                         <p className="p-4 bg-gray-100 rounded-md text-gray-800 whitespace-pre-wrap">
                             {transcription}
                         </p>
+                        <button
+                            onClick={uploadTranscription}
+                            disabled={isUploadingTranscription}
+                            className={`mt-4 flex items-center justify-center px-4 py-2 rounded-md text-white font-medium ${
+                                isUploadingTranscription
+                                    ? "bg-gray-300 cursor-not-allowed"
+                                    : "bg-green-500 hover:bg-green-600"
+                            } transition duration-300 ease-in-out`}
+                        >
+                            {isUploadingTranscription ? (
+                                <>
+                                    <Loader className="w-5 h-5 mr-2 animate-spin" />
+                                    Uploading Transcription...
+                                </>
+                            ) : (
+                                <>
+                                    <Upload className="w-5 h-5 mr-2" />
+                                    Upload Transcription & Audio to S3
+                                </>
+                            )}
+                        </button>
+                        {transcriptionUploadStatus && (
+                            <p className="mt-2 text-sm text-gray-600">
+                                {transcriptionUploadStatus}
+                            </p>
+                        )}
                     </div>
                 )}
             </div>
@@ -210,10 +265,10 @@ function CombinedTool() {
                     type="file"
                     onChange={handleFileChange}
                     className="file:mr-4 file:py-2 file:px-4
-                    file:rounded-full file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-violet-50 file:text-violet-700
-                    hover:file:bg-violet-100"
+          file:rounded-full file:border-0
+          file:text-sm file:font-semibold
+          file:bg-violet-50 file:text-violet-700
+          hover:file:bg-violet-100"
                 />
                 <button
                     onClick={uploadFile}

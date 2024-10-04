@@ -8,7 +8,7 @@ const authConfig = {
     signOutRedirectURL: "http://localhost:5173/",
     clientID: "h14EPNFXyNu73kfxGTk_bEcgjfUa",
     baseUrl: "https://api.asgardeo.io/t/dana",
-    scope: ["openid", "profile"],
+    scope: ["openid", "profile", "roles"],
 };
 
 const App = () => ( 

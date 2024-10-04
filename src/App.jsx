@@ -1,25 +1,22 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import './App.css'
-import Home from './components/Home'
-import ChatBot from './components/ChatBot'
-import Documentation from './components/Documentation'
-import ResourceLocator from './components/ResourceLocator'
+import { AuthProvider } from "@asgardeo/auth-react";
+import AppRouter from './router';
 
-function App() {
+import './App.css';
 
+const authConfig = {
+    signInRedirectURL: "http://localhost:5173/",
+    signOutRedirectURL: "http://localhost:5173/",
+    clientID: "h14EPNFXyNu73kfxGTk_bEcgjfUa",
+    baseUrl: "https://api.asgardeo.io/t/dana",
+    scope: ["openid", "profile"],
+};
 
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home/>}/>
-        <Route path='/ChatBot' element={<ChatBot/>}/>
-        <Route path='/Documentation' element={<Documentation/>}/>
-        <Route path='/ResourceLocator' element={<ResourceLocator/>}/>
-        
-      </Routes>
-    </Router>
+const App = () => ( 
+        <AuthProvider config={authConfig}>
+            <AppRouter />
+        </AuthProvider>
+);
+    
+    
 
-  )
-}
-
-export default App
+export default App;

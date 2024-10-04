@@ -1,0 +1,52 @@
+.chatbot {
+  background-color: #f7f7f7; /* Softer background color */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  font-family: 'Arial', sans-serif; /* Clean font */
+}
+
+.chat-messages {
+  margin-bottom: 20px; /* More space between messages and input */
+  max-height: 400px; /* Limit height for better readability */
+  overflow-y: auto; /* Scroll if messages exceed height */
+}
+
+.message {
+  margin: 10px 0; /* More space between messages */
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #ffffff; /* White background for messages */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for messages */
+}
+
+.message.user {
+  background-color: #e0f7fa; /* Light blue for user messages */
+}
+
+.message.assistant {
+  background-color: #e8f5e9; /* Light green for assistant messages */
+}
+
+input[type="text"] {
+  width: calc(100% - 100px); /* Adjust width to fit with button */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 10px; /* Space between input and button */
+}
+
+button[type="submit"] {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #00796b; /* Calming teal color */
+  color: white;
+  cursor: pointer;
+  margin-top: 1em;
+}
+
+button[type="submit"]:disabled {
+  background-color: #b2dfdb; /* Lighter teal when disabled */
+  cursor: not-allowed;
+}

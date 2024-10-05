@@ -3,7 +3,8 @@ import { Mic, MicOff, FileText, Loader, Upload } from "lucide-react";
 import { useAuthContext } from "@asgardeo/auth-react";
 
 function CombinedTool() {
-    const { state } = useAuthContext();
+    const { state, signIn, signOut } = useAuthContext();
+    const isAuthenticated = state.isAuthenticated;
     const username = state.username || "anonymous";
 
     // State for audio recording and transcription
@@ -131,6 +132,22 @@ function CombinedTool() {
         }
     };
 
+    if (!isAuthenticated) {
+        return (
+            <div className="max-w-2xl mx-auto my-4 p-6 bg-white rounded-lg shadow-md">
+                <h2 className="text-3xl font-bold mb-6 text-gray-800">
+                    You need to log in to upload documents.
+                </h2>
+                <button
+                    onClick={() => signIn()}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
+                >
+                    Log in
+                </button>
+            </div>
+        );
+    }
+
     return (
         <div className="max-w-2xl mx-auto my-4 p-6 bg-white rounded-lg shadow-md">
             <h2 className="text-3xl font-bold mb-6 text-gray-800">
@@ -254,7 +271,13 @@ function CombinedTool() {
                         <h3 className="text-lg font-semibold mb-2 text-gray-700">
                             Upload Status:
                         </h3>
-                        <p className="p-4 bg-gray-100 rounded-md text-gray-800">
+                        <p
+                            className={`p-4 rounded-md text-gray-800 whitespace-pre-wrap ${
+                                uploadStatus.includes("Error")
+                                    ? "bg-red-100"
+                                    : "bg-green-100"
+                            }`}
+                        >
                             {uploadStatus}
                         </p>
                     </div>

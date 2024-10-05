@@ -1,10 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "@asgardeo/auth-react";
 
 const Navbar = () => {
     const { state, signIn, signOut } = useAuthContext();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    //Get user details example
+    const { getBasicUserInfo } = useAuthContext();
+    useEffect(() => {
+        getBasicUserInfo()
+            .then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }, []);
 
     return (
         <nav className="flex items-center justify-between flex-wrap bg-blue-700 p-6">

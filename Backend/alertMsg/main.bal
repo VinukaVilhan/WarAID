@@ -4,14 +4,14 @@ table<Post> key(id) postTable = table [
     {
         
         id: 1,
-        userId: 1,
+        // userId: 1,
         description: "exploring ballerina language",
         tags: "ballerina, programming,language",
         category: "technology"
     },
     {
         id: 2,
-        userId: 2,
+        // userId: 2,
         description: "introduction to microservices",
         tags: "microservices,architecrure,language",
         category: "software engineering"
@@ -35,7 +35,7 @@ service /api on new http:Listener(9090) {
         int nextId = postTable.nextKey();
         Post post = {
             id: nextId,
-            userId: newPost.userId,
+            // userId: newPost.userId,
             description: newPost.description,
             tags: newPost.tags,
             category: newPost.category

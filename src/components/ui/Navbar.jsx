@@ -4,6 +4,7 @@ import { useAuthContext } from "@asgardeo/auth-react";
 
 const Navbar = () => {
     const { state, signIn, signOut } = useAuthContext();
+    console.log(state);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (

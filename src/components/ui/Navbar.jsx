@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuthContext } from "@asgardeo/auth-react";
+import logo from "../../assets/waraid.png";
 
 const Navbar = () => {
     const { state, signIn, signOut } = useAuthContext();
-    console.log(state);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const location = useLocation();
 
-    //Get user details example
     const { getBasicUserInfo } = useAuthContext();
+
     useEffect(() => {
         getBasicUserInfo()
             .then((response) => {
@@ -19,26 +20,35 @@ const Navbar = () => {
             });
     }, []);
 
+    const isActivePage = (path) => {
+        return location.pathname === path;
+    };
+
+    const navLinkStyles = (path) => `
+        block mt-4 lg:inline-block lg:mt-0 
+        text-[#004AAD] hover:text-white hover:bg-[#004AAD] 
+        px-3 py-2 rounded-md mr-4
+        relative
+        ${
+            isActivePage(path)
+                ? "after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-[#004AAD]"
+                : ""
+        }
+    `;
+
     return (
-        <nav className="flex items-center justify-between flex-wrap bg-blue-700 p-6">
-            <div className="flex items-center flex-shrink-0 text-white mr-6">
-                <svg
-                    className="fill-current h-8 w-8 mr-2"
-                    width="54"
-                    height="54"
-                    viewBox="0 0 54 54"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path d="M13.5 22.1c1.8-7.2 6.3-10.8 13.5-10.8 10.8 0 12.15 8.1 17.55 9.45 3.6.9 6.75-.45 9.45-4.05-1.8 7.2-6.3 10.8-13.5 10.8-10.8 0-12.15-8.1-17.55-9.45-3.6-.9-6.75.45-9.45 4.05zM0 38.3c1.8-7.2 6.3-10.8 13.5-10.8 10.8 0 12.15 8.1 17.55 9.45 3.6.9 6.75-.45 9.45-4.05-1.8 7.2-6.3 10.8-13.5 10.8-10.8 0-12.15-8.1-17.55-9.45-3.6-.9-6.75.45-9.45 4.05z" />
-                </svg>
-                <span className="font-semibold text-xl tracking-tight">
-                    War Aid App
-                </span>
+        <nav className="flex items-center justify-between flex-wrap bg-white p-6 px-4 shadow-md">
+            {" "}
+            {/* Added 'shadow-md' */}
+            {/* Logo Section */}
+            <div className="flex items-center flex-shrink-0 ml-20">
+                <img src={logo} alt="War Aid App Logo" className="h-14 mr-2" />
             </div>
+            {/* Mobile Menu Button */}
             <div className="block lg:hidden">
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className="flex items-center px-3 py-2 border rounded text-blue-200 border-blue-400 hover:text-white hover:border-white"
+                    className="flex items-center px-3 py-2 border rounded text-[#004AAD] border-[#004AAD] hover:text-white hover:bg-[#004AAD]"
                 >
                     <svg
                         className="fill-current h-3 w-3"
@@ -50,54 +60,50 @@ const Navbar = () => {
                     </svg>
                 </button>
             </div>
+            {/* Navigation Links - Centered */}
             <div
                 className={`w-full flex-grow lg:flex lg:items-center lg:w-auto ${
                     isMenuOpen ? "block" : "hidden"
                 }`}
             >
-                <div className="text-sm lg:flex-grow">
-                    <Link
-                        to="/"
-                        className="block mt-4 lg:inline-block lg:mt-0 text-blue-200 hover:text-white mr-4"
-                    >
+                <div className="lg:flex lg:justify-center lg:flex-1">
+                    <Link to="/" className={navLinkStyles("/")}>
                         Homepage
                     </Link>
                     <Link
                         to="/ResourceLocator"
-                        className="block mt-4 lg:inline-block lg:mt-0 text-blue-200 hover:text-white mr-4"
+                        className={navLinkStyles("/ResourceLocator")}
                     >
                         Resource Locator
                     </Link>
                     <Link
                         to="/Documentation"
-                        className="block mt-4 lg:inline-block lg:mt-0 text-blue-200 hover:text-white mr-4"
+                        className={navLinkStyles("/Documentation")}
                     >
                         Documentation Tool
                     </Link>
-                    <Link
-                        to="/ChatBot"
-                        className="block mt-4 lg:inline-block lg:mt-0 text-blue-200 hover:text-white"
-                    >
+                    <Link to="/ChatBot" className={navLinkStyles("/ChatBot")}>
                         Chatbot
                     </Link>
                 </div>
-                <div className="mt-4 lg:mt-0">
-                    {state?.isAuthenticated ? (
-                        <button
-                            onClick={() => signOut()}
-                            className="w-full lg:w-auto inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white"
-                        >
-                            Logout
-                        </button>
-                    ) : (
-                        <button
-                            onClick={() => signIn()}
-                            className="w-auto lg:w-auto inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white"
-                        >
-                            Login / Signup
-                        </button>
-                    )}
-                </div>
+            </div>
+            {/* Auth Button */}
+            <div className="mt-4 lg:mt-0 mr-20">
+                {state?.isAuthenticated ? (
+                    <button
+                        onClick={() => signOut()}
+                        className="w-full lg:w-auto inline-block px-10 py-2 leading-none border rounded text-white bg-[#004AAD] border-[#004AAD] hover:bg-white hover:text-[#004AAD]"
+                    >
+                        Logout
+                    </button>
+                ) : (
+                    <button
+                        onClick={() => signIn()}
+                        className="w-full lg:w-auto inline-block px-4 py-2 leading-none border rounded text-white bg-[#004AAD] border-[#004AAD] hover:bg-white hover:text-[#004AAD]"
+                    >
+                        Login / Signup
+                    </button>
+                )}
             </div>
         </nav>
     );

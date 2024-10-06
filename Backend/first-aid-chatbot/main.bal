@@ -13,7 +13,7 @@ configurable string openaiApiKey = ?;
         maxAge: 84900
     }
 }
-service /chatbot on new http:Listener(8080) {
+service /chatbot on new http:Listener(8090) {
     resource function post chat(@http:Payload json userMessage) returns json|error {
         http:Client openAIClient = check new (openaiEndpointUrl);
 

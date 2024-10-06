@@ -11,7 +11,7 @@ const { state, signIn, signOut, getBasicUserInfo } = useAuthContext();
 
 const [isMenuOpen, setIsMenuOpen] = useState(false);
 const location = useLocation();
-const { getBasicUserInfo } = useAuthContext();
+
 
     useEffect(() => {
         getBasicUserInfo()

@@ -331,8 +331,25 @@ dependencies = [
 ]
 
 [[package]]
-org = "dananjaya"
-name = "files_upload"
+org = "ballerinax"
+name = "openai.audio"
+version = "2.0.0"
+dependencies = [
+	{org = "ballerina", name = "constraint"},
+	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "mime"},
+	{org = "ballerina", name = "os"},
+	{org = "ballerina", name = "url"},
+	{org = "ballerinai", name = "observe"}
+]
+modules = [
+	{org = "ballerinax", packageName = "openai.audio", moduleName = "openai.audio"}
+]
+
+[[package]]
+org = "vinuk"
+name = "comb"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
@@ -340,9 +357,10 @@ dependencies = [
 	{org = "ballerina", name = "log"},
 	{org = "ballerina", name = "mime"},
 	{org = "ballerinai", name = "observe"},
-	{org = "ballerinax", name = "aws.s3"}
+	{org = "ballerinax", name = "aws.s3"},
+	{org = "ballerinax", name = "openai.audio"}
 ]
 modules = [
-	{org = "dananjaya", packageName = "files_upload", moduleName = "files_upload"}
+	{org = "vinuk", packageName = "comb", moduleName = "comb"}
 ]
 

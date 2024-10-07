@@ -1,67 +1,211 @@
-import React, { useState } from 'react';
-import 'C:\\Codes\\VScode\\WarAID\\src\\assets\\styles\\chatBot.css';
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, Bot, User, Loader2 } from 'lucide-react';
 
 function Chatbot() {
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+    const [input, setInput] = useState("");
+    const [messages, setMessages] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const messagesEndRef = useRef(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
-    setIsLoading(true);
-    setMessages(prev => [...prev, { role: 'user', content: input }]);
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
 
-    try {
-      const response = await fetch('/chatbot/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Origin': 'http://localhost:5173'
-        },
-        body: JSON.stringify({ content: input }),
-        credentials: 'omit'
-      });
+    const formatMessage = (content) => {
+        // Split content into sections (title and body)
+        const parts = content.split(':');
+        if (parts.length > 1) {
+            const title = parts[0].trim();
+            const body = parts.slice(1).join(':').trim();
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+            return (
+                <div className="space-y-3">
+                    <h3 className="font-semibold text-lg">{title}:</h3>
+                    {formatBody(body)}
+                </div>
+            );
+        }
+        return formatBody(content);
+    };
 
-      const data = await response.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.choices[0].message.content }]);
-    } catch (error) {
-      console.error('Error:', error);
-      setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, there was an error processing your request: ${error.message}` }]);
-    } finally {
-      setIsLoading(false);
-      setInput('');
-    }
-  };
+    const formatBody = (text) => {
+        // Split text into paragraphs
+        const paragraphs = text.split('\n\n').filter(p => p.trim());
+        
+        return (
+            <div className="space-y-4">
+                {paragraphs.map((paragraph, index) => {
+                    // Check if paragraph contains numbered steps
+                    if (paragraph.match(/^\d+\./m)) {
+                        const steps = paragraph
+                            .split(/(?=\d+\.)/)
+                            .filter(step => step.trim())
+                            .map(step => {
+                                const [number, ...textParts] = step.trim().split(' ');
+                                return {
+                                    number: number.replace('.', ''),
+                                    text: textParts.join(' ')
+                                };
+                            });
 
-  return (
-    <div className="chatbot">
-      <div className="chat-messages">
-        {messages.map((message, index) => (
-          <div key={index} className={`message ${message.role}`}>
-            {message.content}
-          </div>
-        ))}
-      </div>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message here..."
-          disabled={isLoading}
-        />
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Sending...' : 'Send'}
-        </button>
-      </form>
-    </div>
-  );
+                        return (
+                            <div key={index} className="space-y-2">
+                                {steps.map((step, stepIndex) => (
+                                    <div key={stepIndex} className="flex items-start space-x-3">
+                                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-semibold">
+                                            {step.number}
+                                        </span>
+                                        <p className="flex-1 text-gray-700">{step.text}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        );
+                    } else {
+                        // Regular paragraph
+                        return <p key={index} className="text-gray-700">{paragraph}</p>;
+                    }
+                })}
+            </div>
+        );
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!input.trim()) return;
+
+        setIsLoading(true);
+        setMessages((prev) => [...prev, { role: "user", content: input }]);
+
+        try {
+            const response = await fetch("/chatbot/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Origin: "http://localhost:5173",
+                },
+                body: JSON.stringify({ content: input }),
+                credentials: "omit",
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            setMessages((prev) => [
+                ...prev,
+                { role: "assistant", content: data.choices[0].message.content },
+            ]);
+        } catch (error) {
+            console.error("Error:", error);
+            setMessages((prev) => [
+                ...prev,
+                {
+                    role: "assistant",
+                    content: `Sorry, there was an error processing your request: ${error.message}`,
+                },
+            ]);
+        } finally {
+            setIsLoading(false);
+            setInput("");
+        }
+    };
+
+    return (
+        <div className="flex flex-col h-[600px] max-w-2xl mx-auto my-2 bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="bg-blue-600 px-6 py-4 flex items-center">
+                <Bot className="h-6 w-6 text-white mr-3" />
+                <h1 className="text-xl font-semibold text-white">War Aid Assistant</h1>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+                <div className="space-y-6">
+                    {messages.map((message, index) => (
+                        <div
+                            key={index}
+                            className={`flex ${
+                                message.role === "user" ? "justify-end" : "justify-start"
+                            }`}
+                        >
+                            <div className={`flex items-start max-w-[85%] ${
+                                message.role === "user" ? "flex-row-reverse" : "flex-row"
+                            }`}>
+                                <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
+                                    message.role === "user" ? "ml-2 bg-blue-600" : "mr-2 bg-blue-500"
+                                }`}>
+                                    {message.role === "user" ? (
+                                        <User className="h-5 w-5 text-white" />
+                                    ) : (
+                                        <Bot className="h-5 w-5 text-white" />
+                                    )}
+                                </div>
+                                <div
+                                    className={`px-4 py-3 rounded-lg ${
+                                        message.role === "user"
+                                            ? "bg-blue-600 text-white rounded-br-none"
+                                            : "bg-white shadow-md rounded-bl-none"
+                                    }`}
+                                >
+                                    {message.role === "assistant" ? (
+                                        formatMessage(message.content)
+                                    ) : (
+                                        <p>{message.content}</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    {isLoading && (
+                        <div className="flex justify-start">
+                            <div className="flex items-start">
+                                <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center mr-2">
+                                    <Bot className="h-5 w-5 text-white" />
+                                </div>
+                                <div className="bg-white shadow-md rounded-lg rounded-bl-none px-4 py-3">
+                                    <div className="flex items-center space-x-2">
+                                        <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
+                                        <span className="text-gray-500">Thinking...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
+            </div>
+
+            <div className="border-t border-gray-200 px-6 py-4 bg-white">
+                <form onSubmit={handleSubmit} className="flex space-x-4">
+                    <input
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Type your message here..."
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={isLoading}
+                    />
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="bg-blue-600 text-white rounded-full px-6 py-2 font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    >
+                        {isLoading ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                            <div className="flex items-center">
+                                <span className="mr-2">Send</span>
+                                <Send className="h-4 w-4" />
+                            </div>
+                        )}
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
 }
 
 export default Chatbot;

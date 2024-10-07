@@ -13,13 +13,13 @@ configurable string openaiApiKey = ?;
         maxAge: 84900
     }
 }
-service /chatbot on new http:Listener(8080) {
+service /chatbot on new http:Listener(8090) {
     resource function post chat(@http:Payload json userMessage) returns json|error {
         http:Client openAIClient = check new (openaiEndpointUrl);
 
         json payload = {
             "messages": [
-                {"role": "system", "content": "You are a helpful assistant who is an expert in First Aid in war environments. Always give the answers in a organized manner."}, 
+                {"role": "system", "content": "You are a helpful assistant who is an expert in First Aid in war environments. Always give the answers in a organized manner and important information and techniques to treat the wounded person."}, 
                 {"role": "user", "content": check userMessage.content}
             ],
             "max_tokens": 800,

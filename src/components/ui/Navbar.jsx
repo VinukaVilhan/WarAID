@@ -42,7 +42,9 @@ const Navbar = () => {
     <nav className="flex items-center justify-between flex-wrap bg-white p-6 px-4 shadow-md">
       {/* Logo Section */}
       <div className="flex items-center flex-shrink-0 ml-20">
+        <Link to="/">
         <img src={logo} alt="War Aid App Logo" className="h-14 mr-2" />
+        </Link>
       </div>
       {/* Mobile Menu Button */}
       <div className="block lg:hidden">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, CheckCircle } from 'lucide-react';
 
-const AlertComponent = () => {
+const AdminAlertComponent = () => {
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
   const [category, setCategory] = useState('');
@@ -106,4 +106,4 @@ const AlertComponent = () => {
   );
 };
 
-export default AlertComponent;
+export default AdminAlertComponent;

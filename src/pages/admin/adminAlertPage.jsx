@@ -1,11 +1,11 @@
 import Navbar from "../../components/ui/Navbar";
-import AlertComponent from "../../components/adminAlertComponent";
+import AdminAlertComponent from "../../components/adminAlertComponent";
 
 function AdminAlertPage(){
     return (
         <div>
           <Navbar/>
-          <AlertComponent/>
+          <AdminAlertComponent/>
         </div>
       );
 }

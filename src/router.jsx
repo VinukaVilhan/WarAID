@@ -3,6 +3,10 @@ import ChatBot from './pages/chatBotPage';
 import Home from './pages/homePage';
 import DocumentationToolPage from './pages/DocumentationToolPage';
 import ResourceLocatorPage from './pages/resourceLocatorPage';
+import ManagePage from './pages/manage';
+import AdminResourceLocatorPage from './pages/admin/adminResourcePage';
+import AdminAlertPage from './pages/admin/adminAlertPage';
+
 
 function AppRouter() {
   return (
@@ -12,7 +16,9 @@ function AppRouter() {
         <Route path="/ChatBot" element={<ChatBot />} />
         <Route path="/Documentation" element={<DocumentationToolPage />} />
         <Route path='/ResourceLocator' element={<ResourceLocatorPage/>}/>
-        
+        <Route path="/Manage" element={<ManagePage />} />
+        <Route path="/AdminResourceLocator" element={<AdminResourceLocatorPage />} />
+        <Route path="/AdminAlert" element={<AdminAlertPage />} />
       </Routes>
     </Router>
   );

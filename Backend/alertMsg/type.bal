@@ -3,14 +3,14 @@ import ballerina/time;
 
 type Post record {|
     readonly int id;
-    time:Civil publishedDate;
+    time:Date publishedDate;
     string description;
     string tags;
     string category;
 |};
 
 type NewPost record {|
-    time:Civil publishedDate;
+    time:Date publishedDate;
     string description;
     string tags;
     string category;

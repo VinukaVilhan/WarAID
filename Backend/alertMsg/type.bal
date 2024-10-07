@@ -1,14 +1,16 @@
 import ballerina/http;
+import ballerina/time;
 
 type Post record {|
     readonly int id;
+    time:Date publishedDate;
     string description;
     string tags;
     string category;
 |};
 
 type NewPost record {|
-    int userId;
+    time:Date publishedDate;
     string description;
     string tags;
     string category;

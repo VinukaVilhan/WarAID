@@ -11,7 +11,7 @@ const NewsComponent = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8080/news');
+      const response = await fetch('http://localhost:8010/news');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

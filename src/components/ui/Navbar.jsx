@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
-
 import { Link, useLocation } from "react-router-dom";
-
 import { useAuthContext } from "@asgardeo/auth-react";
 import logo from "../../assets/waraid.png";
 
 const Navbar = () => {
 
 const { state, signIn, signOut, getBasicUserInfo } = useAuthContext();
-
+const [userRole, setUserRole] = useState(null);
 const [isMenuOpen, setIsMenuOpen] = useState(false);
 const location = useLocation();
 
@@ -17,15 +15,18 @@ const location = useLocation();
         getBasicUserInfo()
             .then((response) => {
                 console.log(response);
+                setUserRole(response.roles)
             })
             .catch((error) => {
                 console.error(error);
             });
-    }, []);
+    }, [state.isAuthenticated, getBasicUserInfo]);
 
     const isActivePage = (path) => {
         return location.pathname === path;
     };
+
+    const isAdmin = userRole === "Admin";
 
     const navLinkStyles = (path) => `
         block mt-4 lg:inline-block lg:mt-0 
@@ -38,16 +39,6 @@ const location = useLocation();
                 : ""
         }
     `;
-
-    useEffect(() => {
-        getBasicUserInfo()
-            .then((response) => {
-                console.log(response);
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }, [getBasicUserInfo]);
 
     return (
         <nav className="flex items-center justify-between flex-wrap bg-white p-6 px-4 shadow-md">
@@ -101,10 +92,17 @@ const location = useLocation();
                     <Link to="/ChatBot" className={navLinkStyles("/ChatBot")}>
                         Chatbot
                     </Link>
+
+                    {isAdmin && (
+                        <Link to="/Manage" className={navLinkStyles("/Manage")}>
+                            Manage
+                        </Link>
+                    )}
+
                 </div>
             </div>
             {/* Auth Button */}
-            <div className="mt-4 lg:mt-0 mr-20">
+            <div className="mt-4 lg:mt-0 mr-20 flex items-center">
                 {state?.isAuthenticated ? (
                     <button
                         onClick={() => signOut()}

@@ -4,7 +4,7 @@ function ResourceLocatorPage(){
     return (
         <div>
           <Navbar/>
-     
+          <h1>resoures</h1>
         </div>
       );
 }

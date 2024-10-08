@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, RefreshCw, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { AlertCircle, RefreshCw, ChevronLeft, ChevronRight, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 
 const NewsComponent = () => {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [expandedCategories, setExpandedCategories] = useState({});
+  const [currentIndices, setCurrentIndices] = useState({});
+  const [expandedCategory, setExpandedCategory] = useState(null);
 
   const fetchNews = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8080/news');
+      const response = await fetch('http://localhost:8010/news');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -55,14 +56,26 @@ const NewsComponent = () => {
     return categories;
   };
 
-  const toggleCategory = (category) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [category]: !prev[category]
+  const categorizedNews = categorizeNews(news);
+
+  useEffect(() => {
+    const initialIndices = {};
+    Object.keys(categorizedNews).forEach(category => {
+      initialIndices[category] = 0;
+    });
+    setCurrentIndices(initialIndices);
+  }, [news]);
+
+  const navigateNews = (category, direction) => {
+    setCurrentIndices(prevIndices => ({
+      ...prevIndices,
+      [category]: (prevIndices[category] + direction + categorizedNews[category].length) % categorizedNews[category].length
     }));
   };
 
-  const categorizedNews = categorizeNews(news);
+  const toggleCategory = (category) => {
+    setExpandedCategory(expandedCategory === category ? null : category);
+  };
 
   if (loading) {
     return (
@@ -92,7 +105,7 @@ const NewsComponent = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {Object.entries(categorizedNews).map(([category, articles]) => (
         <div key={category} className="border border-gray-200 rounded-lg overflow-hidden">
           <button
@@ -105,36 +118,57 @@ const NewsComponent = () => {
                 {articles.length}
               </span>
             </h2>
-            {expandedCategories[category] ? <ChevronUp /> : <ChevronDown />}
+            {expandedCategory === category ? <ChevronUp className="h-6 w-6" /> : <ChevronDown className="h-6 w-6" />}
           </button>
           
-          <div className={`transition-all duration-300 ${expandedCategories[category] ? 'block' : 'hidden'}`}>
-            {articles.length === 0 ? (
-              <p className="p-4 text-gray-600">No updates available for this category.</p>
-            ) : (
-              <div className="divide-y divide-gray-200">
-                {articles.map((item, index) => (
-                  <div key={index} className="p-4 hover:bg-gray-50 transition-colors duration-200">
-                    <div className="flex justify-between items-start">
-                      <h3 className="text-lg font-medium mb-2 flex-grow">{item.title}</h3>
-                      <a 
-                        href={item.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="ml-4 text-blue-500 hover:text-blue-700 flex items-center"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {new Date(item.publishedAt).toLocaleDateString()} | {item.source.name}
-                    </p>
-                    <p className="text-gray-700">{item.description}</p>
+          {expandedCategory === category && (
+            <div className="p-4">
+              {articles.length === 0 ? (
+                <p className="text-gray-600">No updates available for this category.</p>
+              ) : (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <button
+                      onClick={() => navigateNews(category, -1)}
+                      className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-200"
+                      disabled={articles.length <= 1}
+                    >
+                      <ChevronLeft className="h-6 w-6" />
+                    </button>
+                    <span className="text-sm text-gray-500">
+                      {currentIndices[category] + 1} of {articles.length}
+                    </span>
+                    <button
+                      onClick={() => navigateNews(category, 1)}
+                      className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-200"
+                      disabled={articles.length <= 1}
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </button>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  {articles[currentIndices[category]] && (
+                    <div className="bg-white p-4 rounded-lg shadow">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-lg font-medium">{articles[currentIndices[category]].title}</h3>
+                        <a 
+                          href={articles[currentIndices[category]].url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="ml-4 text-blue-500 hover:text-blue-700 flex items-center"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">
+                        {new Date(articles[currentIndices[category]].publishedAt).toLocaleDateString()} | {articles[currentIndices[category]].source.name}
+                      </p>
+                      <p className="text-gray-700">{articles[currentIndices[category]].description}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       ))}
     </div>

@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar/>
+      <Navbar />
 
       <div className="container mx-auto px-4 py-8">
         {/* About Us Section */}
@@ -50,11 +50,11 @@ const HomePage = () => {
               </div>
             </div>
             <div className="mt-6">
-            <Link to="/Documentation">
-              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Open Documentation Tool
-              </button>
-            </Link>
+              <Link to="/Documentation">
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                  Open Documentation Tool
+                </button>
+              </Link>
             </div>
           </div>
         </section>
@@ -85,13 +85,14 @@ const HomePage = () => {
               </div>
             </div>
             <div className="mt-6">
-            <Link to="/ResourceLocator">
-              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Resource Locator
-              </button>
-            </Link>
+              <Link to="/ResourceLocator">
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                  Resource Locator
+                </button>
+              </Link>
             </div>
           </div>
+         
         </section>
 
         {/* News Section */}

@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthContext } from "@asgardeo/auth-react";
+import { Bell, X } from 'lucide-react';
 import logo from "../../assets/waraid.png";
 
 const Navbar = () => {
   const { state, signIn, signOut, getBasicUserInfo } = useAuthContext();
   const [userRole, setUserRole] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
   const location = useLocation();
+
+  // Mock alert messages
+  const [alerts, setAlerts] = useState([
+    { id: 1, message: "New resource available in your area", timestamp: new Date() },
+    { id: 2, message: "Upcoming event: Community meeting on Thursday", timestamp: new Date() },
+    { id: 3, message: "Weather alert: Heavy rain expected tomorrow", timestamp: new Date() },
+  ]);
 
   useEffect(() => {
     getBasicUserInfo()
@@ -38,12 +47,16 @@ const Navbar = () => {
     }
   `;
 
+  const toggleAlertSlider = () => {
+    setIsAlertOpen(!isAlertOpen);
+  };
+
   return (
-    <nav className="flex items-center justify-between flex-wrap bg-white p-6 px-4 shadow-md">
+    <nav className="flex items-center justify-between flex-wrap bg-white p-6 px-4 shadow-md relative">
       {/* Logo Section */}
       <div className="flex items-center flex-shrink-0 ml-20">
         <Link to="/">
-        <img src={logo} alt="War Aid App Logo" className="h-14 mr-2" />
+          <img src={logo} alt="War Aid App Logo" className="h-14 mr-2" />
         </Link>
       </div>
       {/* Mobile Menu Button */}
@@ -93,15 +106,23 @@ const Navbar = () => {
             </Link>
           )}
         </div>
-        {/* Auth Button - Now inside the collapsible section */}
-        <div className="mt-4 lg:mt-0 lg:ml-4">
+        {/* Auth Button and Bell Icon */}
+        <div className="mt-4 lg:mt-0 lg:ml-4 flex items-center">
           {state?.isAuthenticated ? (
-            <button
-              onClick={() => signOut()}
-              className="w-48 lg:w-auto inline-block px-10 py-2 leading-none border rounded text-white bg-[#004AAD] border-[#004AAD] hover:bg-white hover:text-[#004AAD]"
-            >
-              Logout
-            </button>
+            <>
+              <button
+                onClick={() => signOut()}
+                className="w-48 lg:w-auto inline-block px-10 py-2 leading-none border rounded text-white bg-[#004AAD] border-[#004AAD] hover:bg-white hover:text-[#004AAD] mr-4"
+              >
+                Logout
+              </button>
+              <button
+                onClick={toggleAlertSlider}
+                className="text-[#004AAD] hover:text-[#002d6b]"
+              >
+                <Bell size={24} />
+              </button>
+            </>
           ) : (
             <button
               onClick={() => signIn()}
@@ -110,6 +131,32 @@ const Navbar = () => {
               Login / Signup
             </button>
           )}
+        </div>
+      </div>
+
+      {/* Alert Slider */}
+      <div
+        className={`fixed top-0 right-0 w-80 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
+          isAlertOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Alerts</h2>
+            <button onClick={toggleAlertSlider} className="text-gray-500 hover:text-gray-700">
+              <X size={24} />
+            </button>
+          </div>
+          <div className="space-y-4">
+            {alerts.map((alert) => (
+              <div key={alert.id} className="bg-blue-100 p-3 rounded-lg">
+                <p className="text-sm text-blue-800">{alert.message}</p>
+                <p className="text-xs text-blue-600 mt-1">
+                  {alert.timestamp.toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </nav>

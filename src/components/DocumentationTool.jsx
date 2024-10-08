@@ -1,12 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
-    Mic,
-    MicOff,
     Loader,
     Upload,
     Download,
     Trash2,
-    Image,
+    Image as ImageIcon,
     Music,
     Video,
     File,
@@ -14,36 +12,34 @@ import {
     FileText,
 } from "lucide-react";
 import { useAuthContext } from "@asgardeo/auth-react";
+import AudioTranscription from "./AudioTranscription"; // Ensure this component exists
+import Modal from "react-modal";
+
+// Set the app element for accessibility (screen readers)
+Modal.setAppElement("#root");
 
 function DocumentationTool() {
     const { state, signIn } = useAuthContext();
     const username = state.username || "anonymous";
     const isAuthenticated = state.isAuthenticated;
 
-    // State for audio recording and transcription
-    const [isRecording, setIsRecording] = useState(false);
-    const [audioURL, setAudioURL] = useState("");
-    const [transcription, setTranscription] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const mediaRecorderRef = useRef(null);
-    const audioChunksRef = useRef([]);
-
     // State for file uploading
     const [file, setFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState("");
-    const [isUploadingTranscription, setIsUploadingTranscription] =
-        useState(false);
-    const [transcriptionUploadStatus, setTranscriptionUploadStatus] =
-        useState("");
 
     // State for S3 objects
     const [s3Objects, setS3Objects] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
 
-    // Add new state for delete operation
-    const [isDeleting, setIsDeleting] = useState(false);
+    // State for delete operation
+    // const [isDeleting, setIsDeleting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState({});
     const [deleteStatus, setDeleteStatus] = useState("");
+
+    // State for modal
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [modalImageSrc, setModalImageSrc] = useState("");
 
     // Fetch S3 objects for the current user
     const fetchS3Objects = async () => {
@@ -66,130 +62,20 @@ function DocumentationTool() {
         }
     };
 
-    // Fetch objects when username changes
+    // Fetch objects when username or authentication status changes
     useEffect(() => {
         if (username && isAuthenticated) {
             fetchS3Objects();
         }
     }, [username, isAuthenticated]);
 
-    // Audio recording functions
-    const startRecording = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: true,
-            });
-            mediaRecorderRef.current = new MediaRecorder(stream);
-            audioChunksRef.current = [];
-
-            mediaRecorderRef.current.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    audioChunksRef.current.push(event.data);
-                }
-            };
-
-            mediaRecorderRef.current.onstop = () => {
-                const audioBlob = new Blob(audioChunksRef.current, {
-                    type: "audio/webm",
-                });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                setAudioURL(audioUrl);
-            };
-
-            mediaRecorderRef.current.start();
-            setIsRecording(true);
-        } catch (error) {
-            console.error("Error accessing microphone:", error);
-        }
-    };
-
-    const stopRecording = () => {
-        if (mediaRecorderRef.current && isRecording) {
-            mediaRecorderRef.current.stop();
-            setIsRecording(false);
-        }
-    };
-
-    const sendAudioForTranscription = async () => {
-        if (audioChunksRef.current.length === 0) return;
-
-        setIsLoading(true);
-        const audioBlob = new Blob(audioChunksRef.current, {
-            type: "audio/webm",
-        });
-        const formData = new FormData();
-        formData.append("audio", audioBlob, "audio.webm");
-        formData.append("username", username);
-
-        try {
-            const response = await fetch(
-                "http://localhost:8080/transcribe/audio",
-                {
-                    method: "POST",
-                    body: formData,
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            setTranscription(data.transcription);
-        } catch (error) {
-            console.error("Error sending audio for transcription:", error);
-            setTranscription("Error transcribing audio. Please try again.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const uploadTranscription = async () => {
-        if (!transcription) {
-            setTranscriptionUploadStatus("No transcription to upload.");
-            return;
-        }
-
-        setIsUploadingTranscription(true);
-        setTranscriptionUploadStatus("");
-
-        const formData = new FormData();
-        formData.append(
-            "file",
-            new Blob([transcription], { type: "text/plain" }),
-            "transcription.txt"
-        );
-        formData.append("username", username);
-
-        try {
-            const response = await fetch("http://localhost:8080/upload", {
-                method: "POST",
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const result = await response.text();
-            setTranscriptionUploadStatus(result);
-            await fetchS3Objects(); // Refresh the file list
-        } catch (error) {
-            console.error("Error uploading transcription:", error);
-            setTranscriptionUploadStatus(
-                `Error uploading transcription: ${error.message}`
-            );
-        } finally {
-            setIsUploadingTranscription(false);
-        }
-    };
-
-    // File upload functions
+    // Handle file selection
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
         setUploadStatus(""); // Clear previous status
     };
 
+    // Upload file to S3 via Ballerina server
     const uploadFile = async () => {
         if (!file) {
             setUploadStatus("Please select a file first.");
@@ -234,10 +120,13 @@ function DocumentationTool() {
         }
     };
 
+    // Download file from S3 via Ballerina server
     const downloadFile = async (fileName) => {
         try {
             const response = await fetch(
-                `http://localhost:8080/download/${fileName}`,
+                `http://localhost:8080/download/${encodeURIComponent(
+                    username
+                )}/${encodeURIComponent(fileName)}`,
                 { method: "GET" }
             );
 
@@ -267,13 +156,13 @@ function DocumentationTool() {
         }
     };
 
-    // File deletion function
+    // Delete file from S3 via Ballerina server
     const deleteFile = async (fileName) => {
-        if (!confirm(`Are you sure you want to delete ${fileName}?`)) {
+        if (!window.confirm(`Are you sure you want to delete ${fileName}?`)) {
             return;
         }
 
-        setIsDeleting(true);
+        setIsDeleting((prev) => ({ ...prev, [fileName]: true })); // Set specific file as deleting
         setDeleteStatus("");
 
         try {
@@ -287,21 +176,32 @@ function DocumentationTool() {
             );
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                throw new Error(
+                    `HTTP error! status: ${response.status}, message: ${errorText}`
+                );
             }
 
-            const result = await response.text();
+            let result = "";
+            await response.text();
+            if (response.status == 200) {
+                result = "File deleted successfully";
+            } else {
+                result = "File deletion failed";
+            }
+
+            console.log(result);
             setDeleteStatus(result);
             await fetchS3Objects(); // Refresh the file list
         } catch (error) {
             console.error("Error deleting file:", error);
             setDeleteStatus(`Error deleting file: ${error.message}`);
         } finally {
-            setIsDeleting(false);
+            setIsDeleting((prev) => ({ ...prev, [fileName]: false })); // Reset specific file
         }
     };
 
-    // Utility function to return appropriate icon based on file extension
+    // Determine appropriate icon based on file extension
     function getFileIcon(fileName) {
         const extension = fileName.split(".").pop().toLowerCase();
 
@@ -312,7 +212,7 @@ function DocumentationTool() {
             case "jpeg":
             case "png":
             case "gif":
-                return Image;
+                return ImageIcon;
             case "mp3":
             case "wav":
                 return Music;
@@ -329,6 +229,36 @@ function DocumentationTool() {
             default:
                 return File; // Default file icon
         }
+    }
+
+    // Check if the file is an image
+    function isImageFile(fileName) {
+        const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "webp"];
+        const extension = fileName.split(".").pop().toLowerCase();
+        return imageExtensions.includes(extension);
+    }
+
+    // Open modal with the image source
+    const openModal = (src) => {
+        setModalImageSrc(src);
+        setModalIsOpen(true);
+    };
+
+    // Close the modal
+    const closeModal = () => {
+        setModalIsOpen(false);
+        setModalImageSrc("");
+    };
+
+    // Format file size for display
+    function formatFileSize(bytes) {
+        if (bytes === 0) return "0 Bytes";
+
+        const k = 1024;
+        const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
     }
 
     // If not authenticated, show login button
@@ -354,105 +284,11 @@ function DocumentationTool() {
                 Documentation Tool
             </h2>
 
-            {/* Audio Recording Section */}
-            <div className="mb-8">
-                <h3 className="text-2xl font-bold mb-4 text-gray-800">
-                    Audio Recording & Transcription
-                </h3>
-                <div className="space-y-4">
-                    <div className="flex space-x-4">
-                        <button
-                            onClick={
-                                isRecording ? stopRecording : startRecording
-                            }
-                            className={`flex items-center justify-center px-4 py-2 rounded-md text-white font-medium ${
-                                isRecording
-                                    ? "bg-red-500 hover:bg-red-600"
-                                    : "bg-blue-500 hover:bg-blue-600"
-                            } transition duration-300`}
-                            aria-label={
-                                isRecording
-                                    ? "Stop Recording"
-                                    : "Start Recording"
-                            }
-                        >
-                            {isRecording ? (
-                                <>
-                                    <MicOff className="w-5 h-5 mr-2" />
-                                    Stop Recording
-                                </>
-                            ) : (
-                                <>
-                                    <Mic className="w-5 h-5 mr-2" />
-                                    Start Recording
-                                </>
-                            )}
-                        </button>
-
-                        <button
-                            onClick={sendAudioForTranscription}
-                            disabled={!audioURL || isLoading}
-                            className={`flex items-center justify-center px-4 py-2 rounded-md text-white font-medium ${
-                                !audioURL || isLoading
-                                    ? "bg-gray-300 cursor-not-allowed"
-                                    : "bg-green-500 hover:bg-green-600"
-                            } transition duration-300`}
-                            aria-label="Transcribe Audio"
-                        >
-                            <FileText className="w-5 h-5 mr-2" />
-                            Transcribe Audio
-                        </button>
-                    </div>
-
-                    {audioURL && (
-                        <div className="mt-4">
-                            <h4 className="text-lg font-semibold mb-2 text-gray-700">
-                                Recorded Audio:
-                            </h4>
-                            <audio src={audioURL} controls className="w-full" />
-                        </div>
-                    )}
-
-                    {isLoading && (
-                        <div className="flex items-center justify-center space-x-2 text-blue-500">
-                            <Loader className="w-6 h-6 animate-spin" />
-                            <p className="text-lg">Transcribing audio...</p>
-                        </div>
-                    )}
-
-                    {transcription && (
-                        <div className="mt-4">
-                            <h4 className="text-lg font-semibold mb-2 text-gray-700">
-                                Transcription:
-                            </h4>
-                            <p className="border border-gray-300 p-4 rounded-md bg-gray-50">
-                                {transcription}
-                            </p>
-                            <button
-                                onClick={uploadTranscription}
-                                disabled={isUploadingTranscription}
-                                className={`mt-4 flex items-center justify-center px-4 py-2 rounded-md text-white font-medium ${
-                                    isUploadingTranscription
-                                        ? "bg-gray-300 cursor-not-allowed"
-                                        : "bg-blue-500 hover:bg-blue-600"
-                                } transition duration-300`}
-                                aria-label="Upload Transcription"
-                            >
-                                {isUploadingTranscription ? (
-                                    <Loader className="w-5 h-5 animate-spin" />
-                                ) : (
-                                    "Upload Transcription"
-                                )}
-                            </button>
-                            {transcriptionUploadStatus && (
-                                <p className="mt-2 text-gray-600">
-                                    {transcriptionUploadStatus}
-                                </p>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </div>
+            {/* Audio Recording & Transcription Section */}
+            <AudioTranscription
+                username={username}
+                onUploadTranscription={fetchS3Objects}
+            />
 
             {/* File Upload Section */}
             <div className="mb-8">
@@ -515,11 +351,12 @@ function DocumentationTool() {
                         <ul className="space-y-4">
                             {s3Objects.map((object, index) => {
                                 const IconComponent = getFileIcon(object.name);
+                                const isImage = isImageFile(object.name);
 
                                 return (
                                     <li
                                         key={object.name}
-                                        className={`flex justify-between items-center p-4 border rounded-lg ${
+                                        className={`flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg ${
                                             index % 2 === 0
                                                 ? "bg-white"
                                                 : "bg-gray-50"
@@ -536,7 +373,34 @@ function DocumentationTool() {
                                                 {formatFileSize(object.size)}
                                             </span>
                                         </div>
-                                        <div className="flex space-x-2">
+                                        {isImage && (
+                                            <div className="mt-4 md:mt-0">
+                                                <img
+                                                    src={`http://localhost:8080/view/${encodeURIComponent(
+                                                        username
+                                                    )}/${encodeURIComponent(
+                                                        object.name
+                                                            .split("/")
+                                                            .pop()
+                                                    )}`}
+                                                    alt={object.name}
+                                                    className="w-32 h-32 object-cover rounded-md shadow cursor-pointer"
+                                                    loading="lazy"
+                                                    onClick={() =>
+                                                        openModal(
+                                                            `http://localhost:8080/view/${encodeURIComponent(
+                                                                username
+                                                            )}/${encodeURIComponent(
+                                                                object.name
+                                                                    .split("/")
+                                                                    .pop()
+                                                            )}`
+                                                        )
+                                                    }
+                                                />
+                                            </div>
+                                        )}
+                                        <div className="flex space-x-2 mt-4 md:mt-0">
                                             {/* Download button */}
                                             <button
                                                 onClick={() =>
@@ -556,9 +420,11 @@ function DocumentationTool() {
                                                 }
                                                 className="flex items-center space-x-1 p-2 text-red-600 hover:text-red-800 border border-red-600 rounded-lg"
                                                 title="Delete file"
-                                                disabled={isDeleting}
+                                                disabled={
+                                                    isDeleting[object.name]
+                                                } // Check if specific file is deleting
                                             >
-                                                {isDeleting ? (
+                                                {isDeleting[object.name] ? (
                                                     <Loader className="w-5 h-5 animate-spin" />
                                                 ) : (
                                                     <Trash2 className="w-5 h-5" />
@@ -575,19 +441,28 @@ function DocumentationTool() {
                     <p className="text-gray-600">No files uploaded yet.</p>
                 )}
             </div>
+
+            {/* Modal for Image Preview */}
+            <Modal
+                isOpen={modalIsOpen}
+                onRequestClose={closeModal}
+                contentLabel="Image Preview"
+                className="modal"
+                overlayClassName="overlay"
+            >
+                <button onClick={closeModal} className="close-button">
+                    ×
+                </button>
+                {modalImageSrc && (
+                    <img
+                        src={modalImageSrc}
+                        alt="Preview"
+                        className="modal-image"
+                    />
+                )}
+            </Modal>
         </div>
     );
-}
-
-// Utility function to format file sizes
-function formatFileSize(bytes) {
-    if (bytes === 0) return "0 Bytes";
-
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 }
 
 export default DocumentationTool;

@@ -6,6 +6,8 @@ import ResourceLocatorPage from './pages/resourceLocatorPage';
 import ManagePage from './pages/manage';
 import AdminResourceLocatorPage from './pages/admin/adminResourcePage';
 import AdminAlertPage from './pages/admin/adminAlertPage';
+import EmergencyContacts from './pages/EmergencyContacts';
+
 
 
 function AppRouter() {
@@ -19,6 +21,8 @@ function AppRouter() {
         <Route path="/Manage" element={<ManagePage />} />
         <Route path="/AdminResourceLocator" element={<AdminResourceLocatorPage />} />
         <Route path="/AdminAlert" element={<AdminAlertPage />} />
+        <Route path="/EmergencyContacts" element={<EmergencyContacts />} />
+        
       </Routes>
     </Router>
   );

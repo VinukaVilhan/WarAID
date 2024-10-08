@@ -75,7 +75,7 @@ const Navbar = () => {
           </svg>
         </button>
       </div>
-      {/* Navigation Links and Auth Button - Collapsible */}
+      {/* Navigation Links, Auth Button, and Bell Icon - Collapsible */}
       <div
         className={`w-full flex-grow lg:flex lg:items-center lg:w-auto ${
           isMenuOpen ? "block" : "hidden"
@@ -109,28 +109,27 @@ const Navbar = () => {
         {/* Auth Button and Bell Icon */}
         <div className="mt-4 lg:mt-0 lg:ml-4 flex items-center">
           {state?.isAuthenticated ? (
-            <>
-              <button
-                onClick={() => signOut()}
-                className="w-48 lg:w-auto inline-block px-10 py-2 leading-none border rounded text-white bg-[#004AAD] border-[#004AAD] hover:bg-white hover:text-[#004AAD] mr-4"
-              >
-                Logout
-              </button>
-              <button
-                onClick={toggleAlertSlider}
-                className="text-[#004AAD] hover:text-[#002d6b]"
-              >
-                <Bell size={24} />
-              </button>
-            </>
+            <button
+              onClick={() => signOut()}
+              className="w-48 lg:w-auto inline-block px-10 py-2 leading-none border rounded text-white bg-[#004AAD] border-[#004AAD] hover:bg-white hover:text-[#004AAD] mr-4"
+            >
+              Logout
+            </button>
           ) : (
             <button
               onClick={() => signIn()}
-              className="w-full lg:w-auto inline-block px-4 py-2 leading-none border rounded text-white bg-[#004AAD] border-[#004AAD] hover:bg-white hover:text-[#004AAD]"
+              className="w-48 lg:w-auto inline-block px-4 py-2 leading-none border rounded text-white bg-[#004AAD] border-[#004AAD] hover:bg-white hover:text-[#004AAD] mr-4"
             >
               Login / Signup
             </button>
           )}
+          {/* Bell Icon - Always visible */}
+          <button
+            onClick={toggleAlertSlider}
+            className="text-[#004AAD] hover:text-[#002d6b]"
+          >
+            <Bell size={24} />
+          </button>
         </div>
       </div>
 

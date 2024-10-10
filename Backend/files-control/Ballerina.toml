@@ -1,8 +1,8 @@
 [package]
-org = "dananjaya"
-name = "files_upload"
+org = "vinuk"
+name = "comb"
 version = "0.1.0"
-distribution = "2201.10.1"
+distribution = "2201.10.0"
 
 [build-options]
 observabilityIncluded = true

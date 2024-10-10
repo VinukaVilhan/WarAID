@@ -1,12 +1,13 @@
 import Navbar from "../components/ui/Navbar";
+import ResourceLocator from "../components/resourceLocator";
 
-function ResourceLocatorPage(){
-    return (
-        <div>
-          <Navbar/>
-          <h1>resoures</h1>
-        </div>
-      );
+function ResourceLocatorPage() {
+  return (
+    <div>
+      <Navbar />
+      <ResourceLocator />
+    </div>
+  );
 }
 
 export default ResourceLocatorPage;

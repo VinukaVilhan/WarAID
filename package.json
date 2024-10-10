@@ -20,8 +20,7 @@
     "react-modal": "^3.16.1",
     "react-model": "^4.3.1",
     "react-router-dom": "^6.26.2",
-    "waraid": "file:",
-    "react-modal": "^3.16.1"
+    "waraid": "file:"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

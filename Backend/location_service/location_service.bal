@@ -4,11 +4,11 @@ import ballerinax/java.jdbc;
 import ballerinax/mysql.driver as _; // Add this line to import the MySQL driver
 
 // MySQL database connection details (Replace with your AWS MySQL details)
-string host = "waraid-db.cvc84ymk43l7.eu-north-1.rds.amazonaws.com";  
-string port = "3306";                     
-string username = "admin";        
-string password = "admin1234";       
-string database = "test";
+configurable string host = ?;  
+configurable string port = ?;                     
+configurable string username = ?;        
+configurable string password = ?;       
+configurable string database = ?;
 
 // MySQL JDBC URL format
 string jdbcUrl = string `jdbc:mysql://${host}:${port}/${database}`;

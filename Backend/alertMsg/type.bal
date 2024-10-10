@@ -1,34 +1,22 @@
 import ballerina/http;
-import ballerina/time;
+import ballerina/sql;
 
-type Post record {|
+public type Alert record {|
+    @sql:Column {name: "ID"}
     readonly int id;
-    time:Date publishedDate;
+    @sql:Column {name: "DESCRIPTION"}
     string description;
-    string tags;
+    @sql:Column {name: "CATEGORY"}
     string category;
 |};
 
-type NewPost record {|
-    time:Date publishedDate;
+public type NewAlert record {|
     string description;
-    string tags;
     string category;
 |};
 
-type PostCreated record {|
+public type AlertCreated record {|
     *http:Created;
-    Post body;
+    Alert body;
 |};
 
-type Meta record{|
-string[] tags;
-string category;
-|};
-
-type PostWithMeta record{|
-    int id;
-    int userId;
-    string description;
-    Meta meta;
-|};

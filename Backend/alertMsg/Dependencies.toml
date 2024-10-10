@@ -247,6 +247,20 @@ dependencies = [
 
 [[package]]
 org = "ballerina"
+name = "sql"
+version = "1.14.1"
+dependencies = [
+	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.object"},
+	{org = "ballerina", name = "time"}
+]
+modules = [
+	{org = "ballerina", packageName = "sql", moduleName = "sql"}
+]
+
+[[package]]
+org = "ballerina"
 name = "task"
 version = "2.5.0"
 dependencies = [
@@ -257,12 +271,9 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "time"
-version = "2.5.0"
+version = "2.4.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
-]
-modules = [
-	{org = "ballerina", packageName = "time", moduleName = "time"}
 ]
 
 [[package]]
@@ -286,13 +297,38 @@ modules = [
 ]
 
 [[package]]
+org = "ballerinax"
+name = "java.jdbc"
+version = "1.12.1"
+dependencies = [
+	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.string"},
+	{org = "ballerina", name = "sql"},
+	{org = "ballerina", name = "time"}
+]
+modules = [
+	{org = "ballerinax", packageName = "java.jdbc", moduleName = "java.jdbc"}
+]
+
+[[package]]
+org = "ballerinax"
+name = "mysql.driver"
+version = "1.7.0"
+modules = [
+	{org = "ballerinax", packageName = "mysql.driver", moduleName = "mysql.driver"}
+]
+
+[[package]]
 org = "manodya"
 name = "alertMsg"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
-	{org = "ballerina", name = "time"},
-	{org = "ballerinai", name = "observe"}
+	{org = "ballerina", name = "sql"},
+	{org = "ballerinai", name = "observe"},
+	{org = "ballerinax", name = "java.jdbc"},
+	{org = "ballerinax", name = "mysql.driver"}
 ]
 modules = [
 	{org = "manodya", packageName = "alertMsg", moduleName = "alertMsg"}

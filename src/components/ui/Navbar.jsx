@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthContext } from "@asgardeo/auth-react";
 import { Bell, X } from 'lucide-react';
+import AlertSlider from "./AlertSlider";
 import logo from "../../assets/waraid.png";
 
 const Navbar = () => {
@@ -137,30 +138,7 @@ const Navbar = () => {
       </div>
 
       {/* Alert Slider */}
-      <div
-        className={`fixed top-0 right-0 w-80 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
-          isAlertOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Alerts</h2>
-            <button onClick={toggleAlertSlider} className="text-gray-500 hover:text-gray-700">
-              <X size={24} />
-            </button>
-          </div>
-          <div className="space-y-4">
-            {alerts.map((alert) => (
-              <div key={alert.id} className="bg-blue-100 p-3 rounded-lg">
-                <p className="text-sm text-blue-800">{alert.message}</p>
-                <p className="text-xs text-blue-600 mt-1">
-                  {alert.timestamp.toLocaleString()}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <AlertSlider alerts={alerts} isOpen={isAlertOpen} toggleAlertSlider={toggleAlertSlider} />
     </nav>
   );
 };

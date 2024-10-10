@@ -1,8 +1,0 @@
-[package]
-org = "dananjaya"
-name = "files_upload"
-version = "0.1.0"
-distribution = "2201.10.1"
-
-[build-options]
-observabilityIncluded = true

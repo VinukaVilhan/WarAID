@@ -8,10 +8,13 @@ const AlertSlider = ({ isOpen, toggleAlertSlider }) => {
   const [websocket, setWebsocket] = useState(null);
 
   useEffect(() => {
-  
-    fetchAlerts(); // Fetch alerts from the API when the slider is open
-    
-    connectWebSocket(); // Connect to WebSocket once on mount, independent of slider state
+    if (isOpen) {
+      fetchAlerts(); // Fetch alerts from the API when the slider is open
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    connectWebSocket(); // Connect to WebSocket once on mount
 
     // Clean up WebSocket on component unmount
     return () => {
@@ -45,13 +48,12 @@ const AlertSlider = ({ isOpen, toggleAlertSlider }) => {
     ws.onmessage = (event) => {
       const message = event.data;
       console.log('Received WebSocket message:', message);
-      
-      // Instead of using alert(), update the alerts list with the new message
+
+      // Update the alerts list with the new message
       setAlerts((prevAlerts) => [
-        ...prevAlerts, 
+        ...prevAlerts,
         { description: message, timestamp: new Date().toISOString() }
       ]);
-  
     };
 
     ws.onclose = () => {

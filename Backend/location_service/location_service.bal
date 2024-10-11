@@ -23,7 +23,16 @@ function initDatabase(sql:Client dbClient) returns error? {
     )`);
 }
 
-service /api on new http:Listener(9090) {
+@http:ServiceConfig {
+    cors: {
+        allowOrigins: ["http://localhost:5173"],
+        allowCredentials: true,
+        allowHeaders: ["*"],
+        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    }
+}
+
+service /api on new http:Listener(9090){
     final sql:Client dbClient;
 
     function init() returns error? {

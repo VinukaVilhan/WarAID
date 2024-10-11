@@ -16,7 +16,7 @@ const AdminAlertComponent = () => {
   const fetchAlerts = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:9090/api/alerts');
+      const response = await fetch('http://localhost:8070/api/alerts');
       if (!response.ok) throw new Error('Failed to fetch alerts');
       const data = await response.json();
       setAlerts(data);
@@ -34,7 +34,7 @@ const AdminAlertComponent = () => {
     setSuccess('');
 
     try {
-      const response = await fetch('http://localhost:9090/api/alerts', {
+      const response = await fetch('http://localhost:8070/api/alerts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ description, category }),

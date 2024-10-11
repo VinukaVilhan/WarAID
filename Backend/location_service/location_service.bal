@@ -9,6 +9,7 @@ configurable string port = ?;
 configurable string username = ?;        
 configurable string password = ?;       
 configurable string database = ?;
+
 // MySQL JDBC URL format
 string jdbcUrl = string `jdbc:mysql://${host}:${port}/${database}`;
 

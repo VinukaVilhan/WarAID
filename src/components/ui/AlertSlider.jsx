@@ -1,4 +1,3 @@
-// AlertSlider.js
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
@@ -6,12 +5,22 @@ const AlertSlider = ({ isOpen, toggleAlertSlider }) => {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [websocket, setWebsocket] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
-      fetchAlerts();
+      fetchAlerts(); // Fetch alerts from the API when the slider is open
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    connectWebSocket(); // Connect to WebSocket once on mount
+
+    // Clean up WebSocket on component unmount
+    return () => {
+      if (websocket) websocket.close();
+    };
+  }, []);
 
   const fetchAlerts = async () => {
     setLoading(true);
@@ -26,6 +35,32 @@ const AlertSlider = ({ isOpen, toggleAlertSlider }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // WebSocket connection logic
+  const connectWebSocket = () => {
+    const ws = new WebSocket('ws://localhost:9091/subscribe/yourUsername'); // Use actual username
+
+    ws.onopen = () => {
+      console.log('Connected to the alert service');
+    };
+
+    ws.onmessage = (event) => {
+      const message = event.data;
+      console.log('Received WebSocket message:', message);
+
+      // Update the alerts list with the new message
+      setAlerts((prevAlerts) => [
+        ...prevAlerts,
+        { description: message, timestamp: new Date().toISOString() }
+      ]);
+    };
+
+    ws.onclose = () => {
+      console.log('Disconnected from the alert service');
+    };
+
+    setWebsocket(ws);
   };
 
   return (
@@ -45,8 +80,8 @@ const AlertSlider = ({ isOpen, toggleAlertSlider }) => {
           <p className="text-red-500">{error}</p>
         ) : alerts.length > 0 ? (
           <div className="space-y-4">
-            {alerts.map((alert) => (
-              <div key={alert.id} className="bg-blue-100 p-3 rounded-lg">
+            {alerts.map((alert, index) => (
+              <div key={index} className="bg-blue-100 p-3 rounded-lg">
                 <p className="text-sm text-blue-800">{alert.description}</p>
                 <p className="text-xs text-blue-600 mt-1">
                   {new Date(alert.timestamp).toLocaleString()}

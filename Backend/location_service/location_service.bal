@@ -4,12 +4,11 @@ import ballerinax/java.jdbc;
 import ballerinax/mysql.driver as _; // Add this line to import the MySQL driver
 
 // MySQL database connection details (Replace with your AWS MySQL details)
-configurable string host = ?;  
-configurable string port = ?;                     
-configurable string username = ?;        
-configurable string password = ?;       
+configurable string host = ?;
+configurable string port = ?;
+configurable string username = ?;
+configurable string password = ?;
 configurable string database = ?;
-
 // MySQL JDBC URL format
 string jdbcUrl = string `jdbc:mysql://${host}:${port}/${database}`;
 
@@ -32,13 +31,13 @@ function initDatabase(sql:Client dbClient) returns error? {
     }
 }
 
-service /api on new http:Listener(9090){
+service /api on new http:Listener(9090) {
     final sql:Client dbClient;
 
     function init() returns error? {
         // Initialize MySQL JDBC client with AWS RDS MySQL details
         self.dbClient = check new jdbc:Client(jdbcUrl, username, password);
-        check initDatabase(self.dbClient);  // Ensure the table is created
+        check initDatabase(self.dbClient); // Ensure the table is created
     }
 
     resource function post locations(NewLocation newLocation) returns LocationAdded|error {
@@ -71,20 +70,30 @@ service /api on new http:Listener(9090){
     resource function get locations() returns Location[]|error {
         stream<Location, sql:Error?> locationStream = self.dbClient->query(`SELECT * FROM LOCATIONS`);
         return from Location location in locationStream
-               select location;
+            select location;
     }
 
     // New resource function to filter locations by district name
     resource function get locations/byDistrict(string districtName) returns Location[]|error {
         stream<Location, sql:Error?> locationStream = self.dbClient->query(`SELECT * FROM LOCATIONS WHERE DISTRICTNAME = ${districtName}`);
         return from Location location in locationStream
-               select location;
+            select location;
     }
 
     // New resource function to filter locations by location type
     resource function get locations/byType(string locationType) returns Location[]|error {
         stream<Location, sql:Error?> locationStream = self.dbClient->query(`SELECT * FROM LOCATIONS WHERE LOCATIONTYPE = ${locationType}`);
         return from Location location in locationStream
-               select location;
+            select location;
     }
+
+    // New resource function to filter locations by both district name and location type
+    resource function get locations/byDistrictAndType(string districtName, string locationType) returns Location[]|error {
+        stream<Location, sql:Error?> locationStream = self.dbClient->query(`
+        SELECT * FROM LOCATIONS WHERE DISTRICTNAME = ${districtName} AND LOCATIONTYPE = ${locationType}
+    `);
+        return from Location location in locationStream
+            select location;
+    }
+
 }

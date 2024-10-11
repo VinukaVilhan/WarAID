@@ -17,7 +17,7 @@ const AlertSlider = ({ isOpen, toggleAlertSlider }) => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('http://localhost:9090/api/alerts');
+      const response = await fetch('http://localhost:8070/api/alerts');
       if (!response.ok) throw new Error('Failed to fetch alerts');
       const data = await response.json();
       setAlerts(data);

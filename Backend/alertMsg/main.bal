@@ -32,7 +32,7 @@ function initDatabase(sql:Client dbClient) returns error? {
     }
 }
 
-service /api on new http:Listener(9090) {
+service /api on new http:Listener(8070) {
     final sql:Client dbClient;
 
     function init() returns error? {

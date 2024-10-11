@@ -12,13 +12,6 @@ const Navbar = () => {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const location = useLocation();
 
-  // Mock alert messages
-  const [alerts, setAlerts] = useState([
-    { id: 1, message: "New resource available in your area", timestamp: new Date() },
-    { id: 2, message: "Upcoming event: Community meeting on Thursday", timestamp: new Date() },
-    { id: 3, message: "Weather alert: Heavy rain expected tomorrow", timestamp: new Date() },
-  ]);
-
   useEffect(() => {
     getBasicUserInfo()
       .then((response) => {
@@ -138,7 +131,7 @@ const Navbar = () => {
       </div>
 
       {/* Alert Slider */}
-      <AlertSlider alerts={alerts} isOpen={isAlertOpen} toggleAlertSlider={toggleAlertSlider} />
+      <AlertSlider isOpen={isAlertOpen} toggleAlertSlider={toggleAlertSlider} />
     </nav>
   );
 };

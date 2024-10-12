@@ -22,12 +22,14 @@ function initDatabase(sql:Client dbClient) returns error? {
     )`);
 }
 
+// CORS configuration at the service level
 @http:ServiceConfig {
     cors: {
-        allowOrigins: ["http://localhost:5173"],
-        allowCredentials: true,
-        allowHeaders: ["*"],
-        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        allowOrigins: ["http://localhost:5173"], // Specify allowed origins
+        allowCredentials: true, // Allow credentials (cookies, authorization headers, etc.)
+        allowHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
+        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Specify allowed methods
+        exposeHeaders: ["Content-Length", "Content-Type"] // Specify headers to expose
     }
 }
 
@@ -40,7 +42,7 @@ service /api on new http:Listener(9090) {
         check initDatabase(self.dbClient); // Ensure the table is created
     }
 
-    resource function post locations(NewLocation newLocation) returns LocationAdded|error {
+    resource function post locations(@http:Payload NewLocation newLocation) returns LocationAdded|error {
         sql:ExecutionResult result = check self.dbClient->execute(`
             INSERT INTO LOCATIONS (LONGITUDE, LATITUDE, LOCATIONTYPE, DISTRICTNAME) 
             VALUES (${newLocation.longitude}, ${newLocation.latitude}, ${newLocation.locationType}, ${newLocation.districtName})
@@ -61,9 +63,12 @@ service /api on new http:Listener(9090) {
         return http:NOT_FOUND;
     }
 
-    resource function delete locations/[int locId]() returns http:NoContent|error {
-        _ = check self.dbClient->execute(`DELETE FROM LOCATIONS WHERE LOCID = ${locId}`);
-        return http:NO_CONTENT;
+    resource function delete locations/[int locId]() returns http:Ok|error {
+        sql:ExecutionResult result = check self.dbClient->execute(`DELETE FROM LOCATIONS WHERE LOCID = ${locId}`);
+        if result.affectedRowCount > 0 {
+            return http:OK;
+        }
+        return error("Error occurred while deleting the location");
     }
 
     // New resource function to get all locations

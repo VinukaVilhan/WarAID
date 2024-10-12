@@ -94,7 +94,7 @@ const Navbar = () => {
           <Link to="/ChatBot" className={navLinkStyles("/ChatBot")}>
             Chatbot
           </Link>
-          <Link to="/EmergencyContacts" className={navLinkStyles("/ChatBot")}>
+          <Link to="/EmergencyContacts" className={navLinkStyles("/EmergencyContacts")}>
             Emergency Contacts
           </Link>
           {isAdmin && (

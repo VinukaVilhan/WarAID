@@ -20,7 +20,10 @@ const AdminAlertComponent = () => {
       const response = await fetch('http://localhost:8070/api/alerts');
       if (!response.ok) throw new Error('Failed to fetch alerts');
       const data = await response.json();
-      setAlerts(data);
+      setAlerts(data.map(alert => ({
+        ...alert,
+        timestamp: new Date(alert.timestamp).toLocaleString() // Format timestamp for display
+      })));
     } catch (err) {
       setError('Error fetching alerts: ' + err.message);
     } finally {
@@ -181,29 +184,26 @@ const AdminAlertComponent = () => {
               </div>
             ) : alerts.length > 0 ? (
               <div className="space-y-4">
-                {alerts.map((alert) => (
+                {alerts.slice().reverse().map((alert) => (
+                  
                   <div key={alert.id} className="border-b border-gray-200 pb-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="text-lg font-medium text-gray-900">{alert.description}</p>
                         <p className="text-sm text-gray-600">Category: {alert.category}</p>
+                        <p className="text-sm text-gray-500">Created at: {alert.timestamp}</p> {/* Display timestamp */}
                       </div>
                       <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleEdit(alert)}
-                          className="text-indigo-600 hover:text-indigo-900"
-                        >
+                        <button onClick={() => handleEdit(alert)} className="text-indigo-600 hover:text-indigo-900">
                           <Edit2 className="h-5 w-5" />
                         </button>
-                        <button
-                          onClick={() => handleDelete(alert.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
+                        <button onClick={() => handleDelete(alert.id)} className="text-red-600 hover:text-red-900">
                           <Trash2 className="h-5 w-5" />
                         </button>
                       </div>
                     </div>
                   </div>
+
                 ))}
               </div>
             ) : (

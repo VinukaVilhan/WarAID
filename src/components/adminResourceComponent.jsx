@@ -115,22 +115,7 @@ function AdminResourceComponent() {
               </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="longitude" className="block text-sm font-medium text-gray-700">
-                  Longitude
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  id="longitude"
-                  name="longitude"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  value={longitude}
-                  onChange={(e) => setLongitude(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
+            <div>
                 <label htmlFor="latitude" className="block text-sm font-medium text-gray-700">
                   Latitude
                 </label>
@@ -146,6 +131,22 @@ function AdminResourceComponent() {
                 />
               </div>
               <div>
+                <label htmlFor="longitude" className="block text-sm font-medium text-gray-700">
+                  Longitude
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  id="longitude"
+                  name="longitude"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  value={longitude}
+                  onChange={(e) => setLongitude(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div>
                 <label htmlFor="location type" className="block text-sm font-medium text-gray-700">
                   Location Type
                 </label>
@@ -158,9 +159,9 @@ function AdminResourceComponent() {
                   required
                 >
                   <option value="">Select the location type</option>
-                  <option value="medical camp">Medical Camp</option>
-                  <option value="shelter">Shelter</option>
-                  <option value="food">Food</option>
+                  <option value="Medical camp">Medical Camp</option>
+                  <option value="Shelter">Shelter</option>
+                  <option value="Food">Food</option>
                 </select>
               </div>
               <div>
@@ -176,13 +177,14 @@ function AdminResourceComponent() {
                   required
                 >
                   <option value="">Select the district name</option>
-                  <option value="colombo">Colombo</option>
-                  <option value="galle">Galle</option>
-                  <option value="kandy">Kandy</option>
-                  <option value="matara">Matara</option>
-                  <option value="jaffna">Jaffna</option>
-                  <option value="anuradhapura">Anuradhapura</option>
-                  <option value="ampara">Ampara</option>
+                  <option value="Colombo">Colombo</option>
+                  <option value="Galle">Galle</option>
+                  <option value="Kandy">Kandy</option>
+                  <option value="Matara">Matara</option>
+                  <option value="Jaffna">Jaffna</option>
+                  <option value="Anuradhapura">Anuradhapura</option>
+                  <option value="Ampara">Ampara</option>
+                  <option value="Trincomalee">Trincomalee</option>
                 </select>
               </div>
               <div>

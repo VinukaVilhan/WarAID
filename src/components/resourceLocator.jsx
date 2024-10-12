@@ -80,7 +80,7 @@ function ResourceLocatorPage() {
                 bgColor = '#22c55e';
                 IconComponent = UtensilsIcon;
                 break;
-            case 'hospital':
+            case 'medical camp':
                 bgColor = '#ef4444';
                 IconComponent = Stethoscope;
                 break;
@@ -123,7 +123,7 @@ function ResourceLocatorPage() {
                         className="w-1/3 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                     >
                         <option value="">Filter by Type</option>
-                        <option value="hospital">Hospital</option>
+                        <option value="medical camp">Medical Camp</option>
                         <option value="shelter">Shelter</option>
                         <option value="food">Food</option>
                     </select>
@@ -151,7 +151,7 @@ function ResourceLocatorPage() {
                     {[
                         { type: 'Shelters', color: 'blue-500', Icon: HomeIcon },
                         { type: 'Food', color: 'green-500', Icon: UtensilsIcon },
-                        { type: 'Hospitals', color: 'red-500', Icon: Stethoscope },
+                        { type: 'medical camps', color: 'red-500', Icon: Stethoscope },
                     ].map(({ type, color, Icon }) => (
                         <div key={type} className="flex items-center">
                             <div className={`w-6 h-6 bg-${color} rounded-full flex items-center justify-center mr-2`}>

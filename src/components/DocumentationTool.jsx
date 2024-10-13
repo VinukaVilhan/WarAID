@@ -20,7 +20,7 @@ Modal.setAppElement("#root");
 
 function DocumentationTool() {
     const { state, signIn } = useAuthContext();
-    const username = state.username || "anonymous";
+    const username = state.sub || "anonymous";
     const isAuthenticated = state.isAuthenticated;
 
     // State for file uploading
@@ -33,7 +33,6 @@ function DocumentationTool() {
     const [errorMessage, setErrorMessage] = useState("");
 
     // State for delete operation
-    // const [isDeleting, setIsDeleting] = useState(false);
     const [isDeleting, setIsDeleting] = useState({});
     const [deleteStatus, setDeleteStatus] = useState("");
 
@@ -184,13 +183,12 @@ function DocumentationTool() {
 
             let result = "";
             await response.text();
-            if (response.status == 200) {
+            if (response.status === 200) {
                 result = "File deleted successfully";
             } else {
                 result = "File deletion failed";
             }
 
-            console.log(result);
             setDeleteStatus(result);
             await fetchS3Objects(); // Refresh the file list
         } catch (error) {
@@ -384,7 +382,7 @@ function DocumentationTool() {
                                                             .pop()
                                                     )}`}
                                                     alt={object.name}
-                                                    className="w-32 h-32 object-cover rounded-md shadow cursor-pointer"
+                                                    className="w-32 h-32 object-cover rounded-md shadow cursor-pointer mr-4"
                                                     loading="lazy"
                                                     onClick={() =>
                                                         openModal(
@@ -447,19 +445,25 @@ function DocumentationTool() {
                 isOpen={modalIsOpen}
                 onRequestClose={closeModal}
                 contentLabel="Image Preview"
-                className="modal"
-                overlayClassName="overlay"
+                className="fixed inset-0 flex items-center justify-center p-4"
+                overlayClassName="fixed inset-0 bg-black bg-opacity-50 z-50"
             >
-                <button onClick={closeModal} className="close-button">
-                    ×
-                </button>
-                {modalImageSrc && (
-                    <img
-                        src={modalImageSrc}
-                        alt="Preview"
-                        className="modal-image"
-                    />
-                )}
+                <div className="relative bg-white rounded-lg shadow-lg p-4 max-w-full max-h-full overflow-auto">
+                    <button
+                        onClick={closeModal}
+                        className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full p-2 focus:outline-none"
+                        aria-label="Close modal"
+                    >
+                        ×
+                    </button>
+                    {modalImageSrc && (
+                        <img
+                            src={modalImageSrc}
+                            alt="Preview"
+                            className="max-w-full max-h-screen object-contain mx-auto"
+                        />
+                    )}
+                </div>
             </Modal>
         </div>
     );

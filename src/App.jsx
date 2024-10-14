@@ -22,7 +22,6 @@ const authConfig = {
 
 const App = () => (
     <AuthProvider config={authConfig}>
-     
         <AppRouter />
     </AuthProvider>
 );

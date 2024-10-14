@@ -2,29 +2,29 @@ import ballerina/http;
 import ballerina/jwt;
 import ballerina/log;
 
-// JWT Validator configuration
+// Updated JWT Validator configuration
 jwt:ListenerJwtAuthProvider jwtValidator = new({
-    issuer: "https://api.asgardeo.io/t/dana",
+    issuer: "https://api.asgardeo.io/t/dana/oauth2/token",  // Updated issuer
     audience: "h14EPNFXyNu73kfxGTk_bEcgjfUa", // Your client ID
     signatureConfig: {
         jwksConfig: {
-            url: "https://api.asgardeo.io/t/dana/oauth2/jwks" // Directly using the JWKS URL
+            url: "https://api.asgardeo.io/t/dana/oauth2/jwks"
         }
     }
 });
 
-// CORS configuration at the service level
+listener http:Listener securedEP = new(8060);
+
 @http:ServiceConfig {
     cors: {
-        allowOrigins: ["http://localhost:5173"], // Specify allowed origins
-        allowCredentials: true, // Allow credentials (cookies, authorization headers, etc.)
-        allowHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
-        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Specify allowed methods
-        exposeHeaders: ["Content-Length", "Content-Type"] // Specify headers to expose
+        allowOrigins: ["http://localhost:5173"],
+        allowCredentials: true,
+        allowHeaders: ["Authorization", "Content-Type"],
+        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        exposeHeaders: ["Content-Length", "Content-Type"]
     }
 }
-service /secured on new http:Listener(8080) {
-
+service /secured on securedEP {
     resource function get admin(http:Request req) returns http:Response|error {
         log:printInfo("Received request to /secured/admin");
         

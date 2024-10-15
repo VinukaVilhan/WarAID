@@ -13,7 +13,7 @@ jwt:ListenerJwtAuthProvider jwtValidator = new({
     }
 });
 
-listener http:Listener securedEP = new(8060);
+listener http:Listener securedEP = new(8050);
 
 @http:ServiceConfig {
     cors: {

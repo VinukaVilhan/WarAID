@@ -33,12 +33,16 @@ const AlertSlider = ({ isOpen, toggleAlertSlider }) => {
       const response = await fetch('http://localhost:8070/api/alerts');
       if (!response.ok) throw new Error('Failed to fetch alerts');
       const data = await response.json();
-      setAlerts(data);
+      setAlerts(sortAlertsByTimestamp(data));
     } catch (err) {
       setError('Error fetching alerts: ' + err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const sortAlertsByTimestamp = (alertsArray) => {
+    return alertsArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
   };
 
   const connectWebSocket = () => {
@@ -63,10 +67,24 @@ const AlertSlider = ({ isOpen, toggleAlertSlider }) => {
 
         showNotification(newAlertMessage);
 
-        setAlerts((prevAlerts) => [
-          { id: Date.now(), description, timestamp },
-          ...prevAlerts,
-        ]);
+        setAlerts((prevAlerts) => {
+          const newAlert = { id: Date.now(), description, timestamp };
+          const updatedAlerts = [newAlert, ...prevAlerts];
+          
+          // Remove duplicates based on description and keep the most recent
+          const uniqueAlerts = updatedAlerts.reduce((acc, current) => {
+            const x = acc.find(item => item.description === current.description);
+            if (!x) {
+              return acc.concat([current]);
+            } else {
+              // If duplicate found, keep the one with the latest timestamp
+              return acc.map(item => item.description === current.description && new Date(current.timestamp) > new Date(item.timestamp) ? current : item);
+            }
+          }, []);
+
+          // Sort alerts by timestamp, most recent first
+          return sortAlertsByTimestamp(uniqueAlerts);
+        });
 
         lastAlertRef.current = newAlertMessage;
       }
@@ -93,7 +111,7 @@ const AlertSlider = ({ isOpen, toggleAlertSlider }) => {
   };
 
   const dismissAlert = (alertId) => {
-    setAlerts(alerts.filter(alert => alert.id !== alertId));
+    setAlerts(prevAlerts => prevAlerts.filter(alert => alert.id !== alertId));
   };
 
   return (
@@ -118,7 +136,7 @@ const AlertSlider = ({ isOpen, toggleAlertSlider }) => {
             <p className="text-red-500">{error}</p>
           ) : alerts.length > 0 ? (
             <div className="space-y-4 overflow-y-auto flex-grow pr-2">
-              {alerts.slice().reverse().map((alert) => (
+              {alerts.map((alert) => (
                 <div key={alert.id} className="bg-white border-l-4 border-blue-500 rounded-r-lg shadow-md p-4 relative hover:shadow-lg transition-shadow duration-200">
                   <h3 className="text-blue-800 font-semibold text-sm mb-1">
                     {new Date(alert.timestamp).toLocaleString()}

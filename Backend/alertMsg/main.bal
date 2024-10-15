@@ -4,6 +4,7 @@ import ballerinax/java.jdbc;
 import ballerinax/mysql.driver as _;
 import ballerina/websocket;
 import ballerina/io;
+import ballerina/time;
 
 // Database configuration (unchanged)
 configurable string host = ?;
@@ -58,6 +59,7 @@ isolated function broadcast(string msg) {
         foreach string connectionId in clientsMap.keys() {
             websocket:Caller? con = clientsMap[connectionId]; // Get the caller object
             if con is websocket:Caller {
+                io:println("Broadcasting message: " + msg);
                 websocket:Error? err = con->writeMessage(msg);
                 if err is websocket:Error {
                     io:println("Error sending message: " + err.message());
@@ -69,10 +71,11 @@ isolated function broadcast(string msg) {
 
 // Initialize the database
 function initDatabase(sql:Client dbClient) returns error? {
-    _ = check dbClient->execute(`CREATE TABLE IF NOT EXISTS ALERTS1 (
+    _ = check dbClient->execute(`CREATE TABLE IF NOT EXISTS ALERTS5 (
         ID INT AUTO_INCREMENT PRIMARY KEY,
         DESCRIPTION TEXT NOT NULL,
-        CATEGORY VARCHAR(255)
+        CATEGORY VARCHAR(255),
+        TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 }
 
@@ -95,12 +98,13 @@ service /api on new http:Listener(8070) {
         check initDatabase(self.dbClient);
     }
 
+
     resource function get alerts(string? category) returns Alert[]|error {
         sql:ParameterizedQuery query;
         if category is string {
-            query = `SELECT * FROM ALERTS1 WHERE CATEGORY = ${category}`;
+            query = `SELECT * FROM ALERTS5 WHERE CATEGORY = ${category}`;
         } else {
-            query = `SELECT * FROM ALERTS1`;
+            query = `SELECT * FROM ALERTS5`;
         }
         stream<Alert, sql:Error?> alertStream = self.dbClient->query(query);
         return from Alert alert in alertStream
@@ -108,7 +112,7 @@ service /api on new http:Listener(8070) {
     }
 
     resource function get alerts/[int id]() returns Alert|http:NotFound|error {
-        Alert|error alert = self.dbClient->queryRow(`SELECT * FROM ALERTS1 WHERE ID = ${id}`);
+        Alert|error alert = self.dbClient->queryRow(`SELECT * FROM ALERTS5 WHERE ID = ${id}`);
         if alert is Alert {
             return alert;
         }
@@ -116,20 +120,24 @@ service /api on new http:Listener(8070) {
     }
 
     resource function post alerts(@http:Payload NewAlert newAlert) returns AlertCreated|error {
+        string timestamp = getCurrentTimestamp();
+        
         sql:ExecutionResult result = check self.dbClient->execute(`
-            INSERT INTO ALERTS1 (DESCRIPTION, CATEGORY) 
-            VALUES (${newAlert.description}, ${newAlert.category})
+            INSERT INTO ALERTS5 (DESCRIPTION, CATEGORY, TIMESTAMP) 
+            VALUES (${newAlert.description}, ${newAlert.category}, ${timestamp})
         `);
+        
         int|string? alertId = result.lastInsertId;
         if alertId is int {
             Alert alert = {
                 id: alertId,
                 description: newAlert.description,
-                category: newAlert.category
+                category: newAlert.category,
+                timestamp: timestamp
             };
 
-            // Broadcast the alert message to all connected clients
-            string broadcastMessage = "New Alert: " + newAlert.description;
+            string broadcastMessage = string `New Alert: ${newAlert.description} at ${timestamp}`;
+            io:println("Broadcasting post message: " + broadcastMessage); // Add this line
             broadcast(broadcastMessage);
 
             return {body: alert};
@@ -137,33 +145,60 @@ service /api on new http:Listener(8070) {
         return error("Error occurred while inserting the alert");
     }
 
+
     // In your `put alerts/[int id]` function
     resource function put alerts/[int id](@http:Payload NewAlert updatedAlert) returns Alert|http:NotFound|error {
+        // Get the current timestamp
+        string timestamp = getCurrentTimestamp();
+        
         sql:ExecutionResult result = check self.dbClient->execute(`
-            UPDATE ALERTS1 
+            UPDATE ALERTS5 
             SET DESCRIPTION = ${updatedAlert.description}, 
-                CATEGORY = ${updatedAlert.category} 
+                CATEGORY = ${updatedAlert.category},
+                TIMESTAMP = ${timestamp} 
             WHERE ID = ${id}
         `);
+
         if result.affectedRowCount > 0 {
             // Broadcast the update message to all connected clients
-            string broadcastMessage = "Updated Alert: " + updatedAlert.description;
+            string broadcastMessage = "Updated Alert: " + updatedAlert.description + " at " + timestamp;
             broadcast(broadcastMessage);
 
             return {
                 id: id,
                 description: updatedAlert.description,
-                category: updatedAlert.category
+                category: updatedAlert.category,
+                timestamp: timestamp
             };
         }
         return http:NOT_FOUND;
     }
 
+
+
     resource function delete alerts/[int id]() returns http:Ok|http:NotFound|error {
-        sql:ExecutionResult result = check self.dbClient->execute(`DELETE FROM ALERTS1 WHERE ID = ${id}`);
+        sql:ExecutionResult result = check self.dbClient->execute(`DELETE FROM ALERTS5 WHERE ID = ${id}`);
         if result.affectedRowCount > 0 {
             return http:OK;
         }
         return http:NOT_FOUND;
     }
+}
+
+function getCurrentTimestamp() returns string {
+    time:Utc currentTime = time:utcNow();
+    time:Civil civil = time:utcToCivil(currentTime);
+    
+    string formattedDate = string `${civil.year}-${formatTwoDigits(civil.month)}-${formatTwoDigits(civil.day)}`;
+    string formattedTime = string `${formatTwoDigits(civil.hour)}:${formatTwoDigits(civil.minute)}:${formatTwoDigits(getSeconds(civil))}`;
+    
+    return formattedDate + " " + formattedTime;
+}
+
+function formatTwoDigits(int n) returns string {
+    return string `${n < 10 ? "0" : ""}${n}`;
+}
+
+function getSeconds(time:Civil civil) returns int {
+    return civil.second is time:Seconds ? <int>civil.second : 0;
 }

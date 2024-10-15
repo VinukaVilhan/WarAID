@@ -201,11 +201,11 @@ function ResourceLocatorPage() {
                     <Loader className="animate-spin text-blue-500" size={48} />
                 </div>
             ) : locations.length > 0 ? (
-                <div className="bg-white p-4 rounded-lg shadow-lg">
+                <div className="bg-white p-4 rounded-lg shadow-lg ">
                     <MapContainer
                         center={[7.8731, 80.7718]} // Center of Sri Lanka
                         zoom={8}
-                        style={{ height: '600px', width: '100%' }}
+                        style={{ height: '600px', width: '100%', zIndex:1 }}
                         ref={mapRef}
                         className="rounded-lg shadow-inner"
                     >

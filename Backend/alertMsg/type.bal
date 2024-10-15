@@ -8,6 +8,8 @@ public type Alert record {|
     string description;
     @sql:Column {name: "CATEGORY"}
     string category;
+    @sql:Column {name: "TIMESTAMP"}
+    string timestamp; // Adding timestamp
 |};
 
 public type NewAlert record {|

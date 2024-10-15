@@ -118,6 +118,9 @@ dependencies = [
 	{org = "ballerina", name = "log"},
 	{org = "ballerina", name = "time"}
 ]
+modules = [
+	{org = "ballerina", packageName = "jwt", moduleName = "jwt"}
+]
 
 [[package]]
 org = "ballerina"
@@ -202,6 +205,9 @@ dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.value"},
 	{org = "ballerina", name = "observe"}
+]
+modules = [
+	{org = "ballerina", packageName = "log", moduleName = "log"}
 ]
 
 [[package]]
@@ -297,38 +303,15 @@ modules = [
 ]
 
 [[package]]
-org = "ballerinax"
-name = "java.jdbc"
-version = "1.12.1"
-dependencies = [
-	{org = "ballerina", name = "io"},
-	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.string"},
-	{org = "ballerina", name = "sql"},
-	{org = "ballerina", name = "time"}
-]
-modules = [
-	{org = "ballerinax", packageName = "java.jdbc", moduleName = "java.jdbc"}
-]
-
-[[package]]
-org = "ballerinax"
-name = "mysql.driver"
-version = "1.7.0"
-modules = [
-	{org = "ballerinax", packageName = "mysql.driver", moduleName = "mysql.driver"}
-]
-
-[[package]]
 org = "tharuka_deshan"
 name = "location_service"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "jwt"},
+	{org = "ballerina", name = "log"},
 	{org = "ballerina", name = "sql"},
-	{org = "ballerinai", name = "observe"},
-	{org = "ballerinax", name = "java.jdbc"},
-	{org = "ballerinax", name = "mysql.driver"}
+	{org = "ballerinai", name = "observe"}
 ]
 modules = [
 	{org = "tharuka_deshan", packageName = "location_service", moduleName = "location_service"}

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
-    AlertCircle,
-    RefreshCw,
-    ChevronLeft,
-    ChevronRight,
-    ExternalLink,
-    ChevronDown,
-    ChevronUp,
+    AlertOctagon,
+    RotateCw,
+    ArrowLeftCircle,
+    ArrowRightCircle,
+    Link,
+    ArrowDown,
+    ArrowUp,
 } from "lucide-react";
 
 // Custom hook for fetching news
@@ -118,14 +118,10 @@ const NewsComponent = () => {
         }));
     };
 
-    const toggleCategory = (category) => {
-        setExpandedCategory(expandedCategory === category ? null : category);
-    };
-
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <RefreshCw className="animate-spin h-8 w-8 text-blue-500" />
+                <RotateCw className="animate-spin h-8 w-8 text-gray-600" />
                 <p className="ml-2 text-lg font-medium">
                     Loading latest updates...
                 </p>
@@ -140,13 +136,13 @@ const NewsComponent = () => {
                 role="alert"
             >
                 <div className="flex items-center">
-                    <AlertCircle className="h-6 w-6 mr-2" />
+                    <AlertOctagon className="h-6 w-6 mr-2 text-red-600" />
                     <p className="font-bold">Unable to load news</p>
                 </div>
                 <p className="mt-2">{error}</p>
                 <button
                     onClick={fetchNews}
-                    className="mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
+                    className="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
                 >
                     Retry
                 </button>
@@ -155,119 +151,100 @@ const NewsComponent = () => {
     }
 
     return (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(categorizedNews).map(([category, articles]) => (
                 <div
                     key={category}
-                    className="border border-gray-200 rounded-lg overflow-hidden"
+                    className="bg-gray-100 rounded-lg shadow-lg overflow-hidden"
                 >
-                    <button
-                        onClick={() => toggleCategory(category)}
-                        className="w-full flex justify-between items-center p-4 bg-[#F0F8FF] hover:bg-[#87CEFA] transition-colors duration-200"
-                        aria-expanded={expandedCategory === category}
-                        aria-controls={category}
-                    >
-                        <h2 className="text-xl font-semibold text-[#1E90FF] flex items-center">
+                    <div className="bg-gray-800 text-white p-4">
+                        <h2 className="text-lg font-semibold flex items-center justify-between">
                             {category}
-                            <span className="ml-2 px-2 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
+                            <span className="text-sm bg-gray-600 px-2 py-1 rounded-full">
                                 {articles.length}
                             </span>
                         </h2>
-                        {expandedCategory === category ? (
-                            <ChevronUp className="h-6 w-6 text-[#1E90FF]" />
+                    </div>
+                    <div className="p-4">
+                        {articles.length === 0 ? (
+                            <p className="text-gray-500">
+                                No updates available for this category.
+                            </p>
                         ) : (
-                            <ChevronDown className="h-6 w-6 text-[#1E90FF]" />
-                        )}
-                    </button>
-
-                    {expandedCategory === category && (
-                        <div id={category} className="p-4 bg-[#F0F8FF]">
-                            {articles.length === 0 ? (
-                                <p className="text-[#777777]">
-                                    No updates available for this category.
-                                </p>
-                            ) : (
-                                <div>
-                                    <div className="flex items-center justify-between mb-4">
-                                        <button
-                                            onClick={() =>
-                                                navigateNews(category, -1)
-                                            }
-                                            className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-200"
-                                            disabled={articles.length <= 1}
-                                            aria-label="Previous article"
-                                        >
-                                            <ChevronLeft className="h-6 w-6 text-[#1E90FF]" />
-                                        </button>
-                                        <span className="text-sm text-[#777777]">
-                                            {currentIndices[category] + 1} of{" "}
-                                            {articles.length}
-                                        </span>
-                                        <button
-                                            onClick={() =>
-                                                navigateNews(category, 1)
-                                            }
-                                            className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-200"
-                                            disabled={articles.length <= 1}
-                                            aria-label="Next article"
-                                        >
-                                            <ChevronRight className="h-6 w-6 text-[#1E90FF]" />
-                                        </button>
-                                    </div>
-                                    {articles[currentIndices[category]] && (
-                                        <div className="bg-white p-4 rounded-lg shadow">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h3 className="text-lg font-medium text-[#333333]">
-                                                    {
-                                                        articles[
-                                                            currentIndices[
-                                                                category
-                                                            ]
-                                                        ].title
-                                                    }
-                                                </h3>
-                                                <a
-                                                    href={
-                                                        articles[
-                                                            currentIndices[
-                                                                category
-                                                            ]
-                                                        ].url
-                                                    }
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="ml-4 text-[#1E90FF] hover:text-[#FF6347] flex items-center"
-                                                    aria-label="Open article in new tab"
-                                                >
-                                                    <ExternalLink className="h-4 w-4" />
-                                                </a>
-                                            </div>
-                                            <p className="text-sm text-[#777777] mb-2">
-                                                {new Date(
-                                                    articles[
-                                                        currentIndices[category]
-                                                    ].publishedAt
-                                                ).toLocaleDateString()}{" "}
-                                                |{" "}
-                                                {
-                                                    articles[
-                                                        currentIndices[category]
-                                                    ].source.name
-                                                }
-                                            </p>
-                                            <p className="text-[#333333]">
-                                                {
-                                                    articles[
-                                                        currentIndices[category]
-                                                    ].description
-                                                }
-                                            </p>
-                                        </div>
-                                    )}
+                            <div>
+                                <div className="flex items-center justify-between mb-4">
+                                    <button
+                                        onClick={() =>
+                                            navigateNews(category, -1)
+                                        }
+                                        className="p-2 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200"
+                                        disabled={articles.length <= 1}
+                                        aria-label="Previous article"
+                                    >
+                                        <ArrowLeftCircle className="h-5 w-5 text-gray-800" />
+                                    </button>
+                                    <span className="text-sm text-gray-500">
+                                        {currentIndices[category] + 1} of{" "}
+                                        {articles.length}
+                                    </span>
+                                    <button
+                                        onClick={() =>
+                                            navigateNews(category, 1)
+                                        }
+                                        className="p-2 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200"
+                                        disabled={articles.length <= 1}
+                                        aria-label="Next article"
+                                    >
+                                        <ArrowRightCircle className="h-5 w-5 text-gray-800" />
+                                    </button>
                                 </div>
-                            )}
-                        </div>
-                    )}
+                                {articles[currentIndices[category]] && (
+                                    <div>
+                                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                            {
+                                                articles[
+                                                    currentIndices[category]
+                                                ].title
+                                            }
+                                        </h3>
+                                        <p className="text-sm text-gray-500 mb-2">
+                                            {new Date(
+                                                articles[
+                                                    currentIndices[category]
+                                                ].publishedAt
+                                            ).toLocaleDateString()}{" "}
+                                            |{" "}
+                                            {
+                                                articles[
+                                                    currentIndices[category]
+                                                ].source.name
+                                            }
+                                        </p>
+                                        <p className="text-gray-700 mb-4">
+                                            {
+                                                articles[
+                                                    currentIndices[category]
+                                                ].description
+                                            }
+                                        </p>
+                                        <a
+                                            href={
+                                                articles[
+                                                    currentIndices[category]
+                                                ].url
+                                            }
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center text-gray-800 hover:text-gray-900"
+                                        >
+                                            Read more
+                                            <Link className="h-5 w-5 ml-1" />
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             ))}
         </div>

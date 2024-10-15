@@ -1,17 +1,26 @@
 import ballerina/http;
-import ballerina/jwt;
-import ballerina/log;
+import ballerina/sql;
+import ballerinax/java.jdbc;
+import ballerinax/mysql.driver as _; // Add this line to import the MySQL driver
 
-// JWT Validator configuration
-jwt:ListenerJwtAuthProvider jwtValidator = new({
-    issuer: "https://api.asgardeo.io/t/dana",
-    audience: "h14EPNFXyNu73kfxGTk_bEcgjfUa", // Your client ID
-    signatureConfig: {
-        jwksConfig: {
-            url: "https://api.asgardeo.io/t/dana/oauth2/jwks" // Directly using the JWKS URL
-        }
-    }
-});
+// MySQL database connection details (Replace with your AWS MySQL details)
+configurable string host = ?;
+configurable string port = ?;
+configurable string username = ?;
+configurable string password = ?;
+configurable string database = ?;
+// MySQL JDBC URL format
+string jdbcUrl = string `jdbc:mysql://${host}:${port}/${database}`;
+
+function initDatabase(sql:Client dbClient) returns error? {
+    _ = check dbClient->execute(`CREATE TABLE IF NOT EXISTS LOCATIONS (
+        LOCID INT AUTO_INCREMENT PRIMARY KEY, 
+        LONGITUDE REAL NOT NULL, 
+        LATITUDE REAL NOT NULL,  
+        LOCATIONTYPE VARCHAR(255), 
+        DISTRICTNAME VARCHAR(255)
+    )`);
+}
 
 // CORS configuration at the service level
 @http:ServiceConfig {
@@ -23,42 +32,73 @@ jwt:ListenerJwtAuthProvider jwtValidator = new({
         exposeHeaders: ["Content-Length", "Content-Type"] // Specify headers to expose
     }
 }
-service /secured on new http:Listener(8080) {
 
-    resource function get admin(http:Request req) returns http:Response|error {
-        log:printInfo("Received request to /secured/admin");
-        
-        string|error authHeader = req.getHeader("Authorization");
-        if authHeader is error {
-            log:printError("Missing Authorization header");
-            return createResponse(400, "Missing Authorization header");
-        }
+service /api on new http:Listener(9090) {
+    final sql:Client dbClient;
 
-        log:printInfo("Authorization header: " + authHeader);
-
-        if !authHeader.startsWith("Bearer ") {
-            log:printError("Invalid Authorization header format");
-            return createResponse(400, "Invalid Authorization header format");
-        }
-
-        string token = authHeader.substring(7);
-        log:printInfo("Extracted token: " + token);
-
-        var validationResult = jwtValidator.authenticate(token);
-
-        if validationResult is jwt:Payload {
-            log:printInfo("Token validation successful");
-            return createResponse(200, "Authorized as Admin");
-        } else {
-            log:printError("Token validation failed: " + validationResult.toString());
-            return createResponse(401, "Unauthorized");
-        }
+    function init() returns error? {
+        // Initialize MySQL JDBC client with AWS RDS MySQL details
+        self.dbClient = check new jdbc:Client(jdbcUrl, username, password);
+        check initDatabase(self.dbClient); // Ensure the table is created
     }
-}
 
-function createResponse(int statusCode, string payload) returns http:Response {
-    http:Response res = new;
-    res.statusCode = statusCode;
-    res.setTextPayload(payload);
-    return res;
+    resource function post locations(@http:Payload NewLocation newLocation) returns LocationAdded|error {
+        sql:ExecutionResult result = check self.dbClient->execute(`
+            INSERT INTO LOCATIONS (LONGITUDE, LATITUDE, LOCATIONTYPE, DISTRICTNAME) 
+            VALUES (${newLocation.longitude}, ${newLocation.latitude}, ${newLocation.locationType}, ${newLocation.districtName})
+        `);
+        int|string? locId = result.lastInsertId;
+        if locId is int {
+            Location location = {locId: locId, ...newLocation};
+            return {body: location};
+        }
+        return error("Error occurred while retrieving the location id");
+    }
+
+    resource function get locations/[int locId]() returns Location|http:NotFound {
+        Location|error location = self.dbClient->queryRow(`SELECT * FROM LOCATIONS WHERE LOCID = ${locId}`);
+        if location is Location {
+            return location;
+        }
+        return http:NOT_FOUND;
+    }
+
+    resource function delete locations/[int locId]() returns http:Ok|error {
+        sql:ExecutionResult result = check self.dbClient->execute(`DELETE FROM LOCATIONS WHERE LOCID = ${locId}`);
+        if result.affectedRowCount > 0 {
+            return http:OK;
+        }
+        return error("Error occurred while deleting the location");
+    }
+
+    // New resource function to get all locations
+    resource function get locations() returns Location[]|error {
+        stream<Location, sql:Error?> locationStream = self.dbClient->query(`SELECT * FROM LOCATIONS`);
+        return from Location location in locationStream
+            select location;
+    }
+
+    // New resource function to filter locations by district name
+    resource function get locations/byDistrict(string districtName) returns Location[]|error {
+        stream<Location, sql:Error?> locationStream = self.dbClient->query(`SELECT * FROM LOCATIONS WHERE DISTRICTNAME = ${districtName}`);
+        return from Location location in locationStream
+            select location;
+    }
+
+    // New resource function to filter locations by location type
+    resource function get locations/byType(string locationType) returns Location[]|error {
+        stream<Location, sql:Error?> locationStream = self.dbClient->query(`SELECT * FROM LOCATIONS WHERE LOCATIONTYPE = ${locationType}`);
+        return from Location location in locationStream
+            select location;
+    }
+
+    // New resource function to filter locations by both district name and location type
+    resource function get locations/byDistrictAndType(string districtName, string locationType) returns Location[]|error {
+        stream<Location, sql:Error?> locationStream = self.dbClient->query(`
+        SELECT * FROM LOCATIONS WHERE DISTRICTNAME = ${districtName} AND LOCATIONTYPE = ${locationType}
+    `);
+        return from Location location in locationStream
+            select location;
+    }
+
 }

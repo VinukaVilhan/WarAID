@@ -2,7 +2,7 @@ import React from "react";
 import { AuthProvider, useAuthContext } from "@asgardeo/auth-react"; // Import useAuthContext
 import AppRouter from "./router"; // Router component
 import "./App.css";
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router } from "react-router-dom";
 
 const authConfig = {
     signInRedirectURL: "http://localhost:5173/",

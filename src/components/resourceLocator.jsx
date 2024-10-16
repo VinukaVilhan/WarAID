@@ -7,15 +7,21 @@ import 'leaflet/dist/leaflet.css';
 
 function ResourceLocatorPage() {
     const [locations, setLocations] = useState([]);
-    const [filter, setFilter] = useState({ type: '', district: '' });
+    const [filteredLocations, setFilteredLocations] = useState([]);
+    const [filter, setFilter] = useState({ type: '', district: '', country: '' });
     const [isFilterVisible, setIsFilterVisible] = useState(true);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [mapKey, setMapKey] = useState(0);
     const mapRef = useRef();
 
     useEffect(() => {
         fetchLocations();
     }, []);
+
+    useEffect(() => {
+        applyFilter();
+    }, [filter]);
 
     const fetchLocations = (url = 'http://localhost:9090/api/locations') => {
         setLoading(true);
@@ -31,12 +37,15 @@ function ResourceLocatorPage() {
                     throw new Error('Data is not an array');
                 }
                 setLocations(data);
+                setFilteredLocations(data);
                 setError(null);
+                setMapKey(prevKey => prevKey + 1);
             })
             .catch(error => {
                 console.error('Error fetching locations:', error);
                 setError(error.message);
                 setLocations([]);
+                setFilteredLocations([]);
             })
             .finally(() => {
                 setLoading(false);
@@ -50,12 +59,20 @@ function ResourceLocatorPage() {
     const applyFilter = () => {
         let url = 'http://localhost:9090/api/locations';
 
-        if (filter.type && filter.district) {
-            url = `http://localhost:9090/api/locations/byDistrictAndType?districtName=${filter.district}&locationType=${filter.type}`;
-        } else if (filter.type) {
-            url = `http://localhost:9090/api/locations/byType?locationType=${filter.type}`;
+        if (filter.country && filter.district && filter.type) {
+            url = `${url}/byCountryAndDistrictAndType?countryName=${filter.country}&districtName=${filter.district}&locationType=${filter.type}`;
+        } else if (filter.country && filter.district) {
+            url = `${url}/byCountryAndDistrict?countryName=${filter.country}&districtName=${filter.district}`;
+        } else if (filter.country && filter.type) {
+            url = `${url}/byCountryAndType?countryName=${filter.country}&locationType=${filter.type}`;
+        } else if (filter.district && filter.type) {
+            url = `${url}/byDistrictAndType?districtName=${filter.district}&locationType=${filter.type}`;
+        } else if (filter.country) {
+            url = `${url}/byCountry?countryName=${filter.country}`;
         } else if (filter.district) {
-            url = `http://localhost:9090/api/locations/byDistrict?districtName=${filter.district}`;
+            url = `${url}/byDistrict?districtName=${filter.district}`;
+        } else if (filter.type) {
+            url = `${url}/byType?locationType=${filter.type}`;
         }
 
         fetchLocations(url);
@@ -109,17 +126,16 @@ function ResourceLocatorPage() {
         });
     };
 
-    // New component to handle map updates
     function MapUpdater({ locations }) {
         const map = useMap();
-    
+
         useEffect(() => {
             if (locations.length > 0) {
                 const bounds = L.latLngBounds(locations.map(loc => [loc.latitude, loc.longitude]));
-                map.flyToBounds(bounds, { padding: [50, 50], maxZoom: 15, duration: 0.5 });
+                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15, duration: 0.5 });
             }
         }, [locations, map]);
-    
+
         return null;
     }
 
@@ -133,7 +149,7 @@ function ResourceLocatorPage() {
                         name="type"
                         value={filter.type}
                         onChange={handleFilterChange}
-                        className="w-full sm:w-1/3 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-700"
+                        className="w-full sm:w-1/4 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-700"
                     >
                         <option value="">Filter by Type</option>
                         <option value="medical camp">Medical Camp</option>
@@ -145,19 +161,27 @@ function ResourceLocatorPage() {
                         name="district"
                         value={filter.district}
                         onChange={handleFilterChange}
-                        className="w-full sm:w-1/3 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-700"
+                        className="w-full sm:w-1/4 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-700"
                     >
                         <option value="">Filter by District</option>
-                        <option value="Colombo">Colombo</option>
-                        <option value="Galle">Galle</option>
+                        <option value="Tel Aviv">Tel Aviv</option>
+                        <option value="Jerusalem">Jerusalem</option>
+                        <option value="Haifa">Haifa</option>
+                        <option value="Nazareth">Nazareth</option>
+                        <option value="Beersheba">Beersheba</option>
+                        <option value="Netanya">Netanya</option>
                     </select>
 
-                    <button
-                        onClick={applyFilter}
-                        className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+                    <select
+                        name="country"
+                        value={filter.country}
+                        onChange={handleFilterChange}
+                        className="w-full sm:w-1/4 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-700"
                     >
-                        Apply Filter
-                    </button>
+                        <option value="">Filter by Country</option>
+                        <option value="Israel">Israel</option>
+                        <option value="Palestine">Palestine</option>
+                    </select>
                 </div>
 
                 <div className="flex flex-wrap justify-center sm:justify-end space-x-4 mb-4">
@@ -200,12 +224,13 @@ function ResourceLocatorPage() {
                 <div className="flex justify-center items-center h-96">
                     <Loader className="animate-spin text-blue-500" size={48} />
                 </div>
-            ) : locations.length > 0 ? (
+            ) : filteredLocations.length > 0 ? (
                 <div className="bg-white p-4 rounded-lg shadow-lg ">
                     <MapContainer
-                        center={[7.8731, 80.7718]} // Center of Sri Lanka
+                        key={mapKey}
+                        center={[31.7683, 35.2137]} // Center of Israel
                         zoom={8}
-                        style={{ height: '600px', width: '100%', zIndex:1 }}
+                        style={{ height: '600px', width: '100%', zIndex: 1 }}
                         ref={mapRef}
                         className="rounded-lg shadow-inner"
                     >
@@ -213,8 +238,8 @@ function ResourceLocatorPage() {
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         />
-                        <MapUpdater locations={locations} />
-                        {locations.map((location) => (
+                        <MapUpdater locations={filteredLocations} />
+                        {filteredLocations.map((location) => (
                             <Marker
                                 key={location.locId}
                                 position={[location.latitude, location.longitude]}
@@ -224,6 +249,7 @@ function ResourceLocatorPage() {
                                     <div className="font-sans">
                                         <h3 className="font-bold text-lg mb-2">{location.locationType}</h3>
                                         <p className="text-gray-600">District: {location.districtName}</p>
+                                        <p className="text-gray-600">Country: {location.countryName}</p>
                                     </div>
                                 </Popup>
                             </Marker>

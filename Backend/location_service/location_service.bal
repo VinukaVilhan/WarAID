@@ -18,7 +18,8 @@ function initDatabase(sql:Client dbClient) returns error? {
         LONGITUDE REAL NOT NULL, 
         LATITUDE REAL NOT NULL,  
         LOCATIONTYPE VARCHAR(255), 
-        DISTRICTNAME VARCHAR(255)
+        DISTRICTNAME VARCHAR(255),
+        COUNTRYNAME VARCHAR(255)
     )`);
 }
 
@@ -44,8 +45,8 @@ service /api on new http:Listener(9090) {
 
     resource function post locations(@http:Payload NewLocation newLocation) returns LocationAdded|error {
         sql:ExecutionResult result = check self.dbClient->execute(`
-            INSERT INTO LOCATIONS (LONGITUDE, LATITUDE, LOCATIONTYPE, DISTRICTNAME) 
-            VALUES (${newLocation.longitude}, ${newLocation.latitude}, ${newLocation.locationType}, ${newLocation.districtName})
+            INSERT INTO LOCATIONS (LONGITUDE, LATITUDE, LOCATIONTYPE, DISTRICTNAME, COUNTRYNAME) 
+            VALUES (${newLocation.longitude}, ${newLocation.latitude}, ${newLocation.locationType}, ${newLocation.districtName},${newLocation.countryName})
         `);
         int|string? locId = result.lastInsertId;
         if locId is int {
@@ -85,6 +86,12 @@ service /api on new http:Listener(9090) {
             select location;
     }
 
+    resource function get locations/byCountry(string countryName) returns Location[]|error {
+        stream<Location, sql:Error?> locationStream = self.dbClient->query(`SELECT * FROM LOCATIONS WHERE COUNTRYNAME = ${countryName}`);
+        return from Location location in locationStream
+            select location;
+    }
+
     // New resource function to filter locations by location type
     resource function get locations/byType(string locationType) returns Location[]|error {
         stream<Location, sql:Error?> locationStream = self.dbClient->query(`SELECT * FROM LOCATIONS WHERE LOCATIONTYPE = ${locationType}`);
@@ -100,5 +107,29 @@ service /api on new http:Listener(9090) {
         return from Location location in locationStream
             select location;
     }
+    resource function get locations/byCountryAndDistrict(string countryName, string districtName) returns Location[]|error {
+        stream<Location, sql:Error?> locationStream = self.dbClient->query(`
+        SELECT * FROM LOCATIONS WHERE COUNTRYNAME = ${countryName} AND DISTRICTNAME = ${districtName} 
+    `);
+        return from Location location in locationStream
+            select location;
+    }
+
+    resource function get locations/byCountryAndType(string countryName, string locationType) returns Location[]|error {
+        stream<Location, sql:Error?> locationStream = self.dbClient->query(`
+        SELECT * FROM LOCATIONS WHERE COUNTRYNAME = ${countryName} AND LOCATIONTYPE = ${locationType} 
+    `);
+        return from Location location in locationStream
+            select location;
+    }
+
+    resource function get locations/byCountryAndDistrictAndType(string countryName, string districtName, string locationType) returns Location[]|error {
+        stream<Location, sql:Error?> locationStream = self.dbClient->query(`
+        SELECT * FROM LOCATIONS WHERE COUNTRYNAME = ${countryName} AND DISTRICTNAME = ${districtName} AND LOCATIONTYPE = ${locationType} 
+    `);
+        return from Location location in locationStream
+            select location;
+    }
+
 
 }

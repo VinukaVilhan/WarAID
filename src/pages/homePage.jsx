@@ -58,7 +58,7 @@ const HomePage = () => {
                 </div>
             </header>
 
-            <main className="px-4 py-8">
+            <main className="px-4">
                 {/* Latest Conflict Updates Section */}
                 <section className="mb-12 bg-white w-full text-black p-6">
                     <div className="flex items-center mb-4">
@@ -73,35 +73,6 @@ const HomePage = () => {
                         during these difficult times.
                     </p>
                     <NewsComponent />
-                </section>
-
-                {/* About Us Section */}
-                <section className="mb-12 bg-white w-full text-center">
-                    <h2 className="text-3xl font-bold mb-4">About Us</h2>
-                    <div className="p-6">
-                        <div className="flex items-center justify-center mb-4">
-                            <Info
-                                className="text-blue-500 mr-2 h-8 w-8"
-                                aria-hidden="true"
-                            />
-                            <h3 className="text-xl font-semibold">
-                                Our Mission
-                            </h3>
-                        </div>
-                        <p className="text-gray-700 mb-4 max-w-2xl mx-auto">
-                            Our war aid application is dedicated to providing
-                            support to individuals affected by conflict. We help
-                            document crucial events, locate essential resources
-                            like food and medicine, and connect those in need
-                            with lifesaving aid.
-                        </p>
-                        <p className="text-gray-700 max-w-2xl mx-auto">
-                            We believe that every effort counts in times of
-                            crisis, and we are committed to empowering
-                            communities by sharing vital information and
-                            facilitating access to assistance.
-                        </p>
-                    </div>
                 </section>
 
                 {/* Emergency Documentation Tool Section */}

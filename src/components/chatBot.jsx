@@ -4,7 +4,7 @@ import { Send, ShieldPlus, User, Loader2, X } from "lucide-react";
 import { useChatbot } from "../Context/ChatbotContext";
 
 function Chatbot() {
-    const { isChatbotOpen, toggleChatbot } = useChatbot(); // Get visibility state and toggle function
+    const { isChatbotOpen, toggleChatbot } = useChatbot();
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -71,11 +71,10 @@ function Chatbot() {
     };
 
     if (!isChatbotOpen) {
-        return null; // Do not render the chatbot if it's not open
+        return null;
     }
 
     const formatMessage = (content) => {
-        // Split content into sections (title and body)
         const parts = content.split(":");
         if (parts.length > 1) {
             const title = parts[0].trim();
@@ -92,12 +91,10 @@ function Chatbot() {
     };
 
     const formatBody = (text) => {
-        // Split text into paragraphs
         const paragraphs = text.split("\n\n").filter((p) => p.trim());
         return (
             <div className="space-y-4">
                 {paragraphs.map((paragraph, index) => {
-                    // Check if paragraph contains numbered steps
                     if (paragraph.match(/^\d+\./m)) {
                         const steps = paragraph
                             .split(/(?=\d+\.)/)
@@ -130,7 +127,6 @@ function Chatbot() {
                             </div>
                         );
                     } else {
-                        // Regular paragraph
                         return (
                             <p key={index} className="text-gray-700">
                                 {paragraph}
@@ -143,11 +139,14 @@ function Chatbot() {
     };
 
     return (
-        <div className="fixed bottom-5 right-5 w-[500px] h-[600px] bg-white rounded-lg shadow-lg overflow-hidden z-50">
+        <div className="fixed bottom-5 right-5 w-[500px] h-[600px] bg-white rounded-lg shadow-lg overflow-hidden z-50 flex flex-col">
             <div className="bg-blue-600 px-4 py-2 flex justify-between items-center">
-                <h1 className="text-lg text-white">Medical Assistant</h1>
-                <button onClick={toggleChatbot}>
-                    <X className="text-white w-6 h-6" />
+                <h1 className="text-lg text-white font-semibold">Medical Assistant</h1>
+                <button 
+                    onClick={toggleChatbot}
+                    className="text-white hover:bg-blue-700 rounded-full p-1 transition-colors duration-200"
+                >
+                    <X className="w-6 h-6" />
                 </button>
             </div>
 

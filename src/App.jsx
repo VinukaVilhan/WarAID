@@ -5,7 +5,7 @@ import "./App.css";
 import { BrowserRouter as Router } from "react-router-dom";
 import { ChatbotProvider } from "./Context/ChatbotContext"; // Import the Chatbot context provider
 import Chatbot from "./components/ChatBot"; // Import the Chatbot component
-import ChatbotButton from "./components/ChatbotButton"; // Import the button to open the chatbot
+import ChatbotButton from "./components/ui/ChatBotButton"; // Import the button to open the chatbot
 
 const authConfig = {
     signInRedirectURL: "http://localhost:5173/",
@@ -32,7 +32,7 @@ const App = () => {
             <ChatbotProvider>
                 <Router>
                     <AppRouter />
-                    <Chatbot />
+                        <Chatbot />
                     <ChatbotButton />
                 </Router>
             </ChatbotProvider>

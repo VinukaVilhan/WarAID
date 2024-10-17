@@ -1,4 +1,4 @@
-import Chatbot from "../components/chatBot";
+import Chatbot from "../components/ChatBot";
 import Navbar from "../components/ui/Navbar";
 
 function chatBot(){

@@ -7,12 +7,61 @@ import { ChevronUp, ChevronDown, HomeIcon, UtensilsIcon, Stethoscope, AlertCircl
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine';
 
-
-function RoutingMachine({ userLocation, selectedLocation }) {
+function RoutingMachine({ userLocation, selectedLocation, onCloseRoute }) {
     const map = useMap();
+    const [minimized, setMinimized] = useState(false);
+    const routingControlRef = useRef(null);
 
     useEffect(() => {
         if (!userLocation || !selectedLocation) return;
+
+        // Add custom CSS for controls
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            .routing-controls {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                z-index: 1000;
+                background: white;
+                border-radius: 4px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                display: flex;
+                gap: 4px;
+                padding: 4px;
+            }
+            
+            .control-button {
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: none;
+                background: white;
+                cursor: pointer;
+                border-radius: 4px;
+                font-size: 16px;
+            }
+            
+            .control-button:hover {
+                background: #f0f0f0;
+            }
+            
+            .close-button:hover {
+                background: #ff4444;
+                color: white;
+            }
+            
+            .leaflet-routing-container {
+                transition: transform 0.3s ease;
+            }
+            
+            .leaflet-routing-container.minimized {
+                transform: translateY(calc(100% - 40px));
+            }
+        `;
+        document.head.appendChild(styleSheet);
 
         const routingControl = L.Routing.control({
             waypoints: [
@@ -20,7 +69,6 @@ function RoutingMachine({ userLocation, selectedLocation }) {
                 L.latLng(selectedLocation.latitude, selectedLocation.longitude)
             ],
             routeWhileDragging: false,
-            showAlternatives: true,
             addWaypoints: false,
             fitSelectedRoutes: true,
             lineOptions: {
@@ -28,14 +76,52 @@ function RoutingMachine({ userLocation, selectedLocation }) {
             }
         }).addTo(map);
 
+        routingControlRef.current = routingControl;
+
+        // Create and add controls container
+        const controlsDiv = L.DomUtil.create('div', 'routing-controls');
+        const minimizeButton = L.DomUtil.create('button', 'control-button minimize-button', controlsDiv);
+        const closeButton = L.DomUtil.create('button', 'control-button close-button', controlsDiv);
+
+        minimizeButton.innerHTML = '−';
+        closeButton.innerHTML = '×';
+        minimizeButton.title = 'Minimize';
+        closeButton.title = 'Close';
+
+        // Handle minimize click
+        L.DomEvent.on(minimizeButton, 'click', (e) => {
+            L.DomEvent.stop(e);
+            const container = document.querySelector('.leaflet-routing-container');
+            if (container) {
+                container.classList.toggle('minimized');
+                minimizeButton.innerHTML = container.classList.contains('minimized') ? '+' : '−';
+                setMinimized(!minimized);
+            }
+        });
+
+        // Handle close click
+        L.DomEvent.on(closeButton, 'click', (e) => {
+            L.DomEvent.stop(e);
+            if (routingControlRef.current) {
+                map.removeControl(routingControlRef.current);
+            }
+            if (onCloseRoute) {
+                onCloseRoute();
+            }
+        });
+
+        document.querySelector('.leaflet-routing-container').appendChild(controlsDiv);
+
         return () => {
-            map.removeControl(routingControl);
+            if (routingControlRef.current) {
+                map.removeControl(routingControlRef.current);
+            }
+            styleSheet.remove();
         };
-    }, [map, userLocation, selectedLocation]);
+    }, [map, userLocation, selectedLocation, onCloseRoute]);
 
     return null;
 }
-
 
 function MapUpdater({ locations, userLocation }) {
     const map = useMap();
@@ -159,6 +245,10 @@ function ResourceLocatorPage() {
 
     const handleFilterChange = (e) => {
         setFilter({ ...filter, [e.target.name]: e.target.value });
+    };
+
+    const handleCloseRoute = () => {
+        setSelectedLocation(null);
     };
 
     const applyFilter = () => {
@@ -340,6 +430,7 @@ function ResourceLocatorPage() {
                             <RoutingMachine
                                 userLocation={userLocation}
                                 selectedLocation={selectedLocation}
+                                onCloseRoute={handleCloseRoute}
                             />
                         )}
 

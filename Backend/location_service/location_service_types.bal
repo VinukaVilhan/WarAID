@@ -12,6 +12,9 @@ public type Location record {|
     string locationType;
     @sql:Column {name: "DISTRICTNAME"}
     string districtName;
+    @sql:Column {name: "COUNTRYNAME"}
+    string countryName;
+    
 |};
 
 public type NewLocation record {|
@@ -19,6 +22,7 @@ public type NewLocation record {|
     float latitude;
     string locationType;
     string districtName;
+    string countryName;
 |};
 
 public type LocationAdded record {|

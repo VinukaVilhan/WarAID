@@ -21,7 +21,7 @@ const PrivateRoute = ({ children }) => {
         }
 
         // Validate the ID token with the backend
-        const response = await axios.get('http://localhost:8060/secured/admin', {
+        const response = await axios.get('http://localhost:8050/secured/admin', {
           headers: {
             Authorization: `Bearer ${idToken}`,
           },

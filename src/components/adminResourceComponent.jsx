@@ -6,9 +6,11 @@ function AdminResourceComponent() {
   const [latitude, setLatitude] = useState('');
   const [locationType, setLocationType] = useState('');
   const [districtName, setDistrictName] = useState('');
+  const [countryName, setCountryName] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [locations, setLocations] = useState([]);
+  
 
   useEffect(() => {
     fetchLocations();
@@ -37,7 +39,8 @@ function AdminResourceComponent() {
       longitude: parseFloat(longitude),
       latitude: parseFloat(latitude),
       locationType,
-      districtName
+      districtName,
+      countryName
     };
 
     try {
@@ -62,6 +65,7 @@ function AdminResourceComponent() {
       setLatitude('');
       setLocationType('');
       setDistrictName('');
+      setCountryName('');
       
       // Refresh the locations list
       fetchLocations();
@@ -166,7 +170,7 @@ function AdminResourceComponent() {
               </div>
               <div>
                 <label htmlFor="district name" className="block text-sm font-medium text-gray-700">
-                  District Name
+                  District 
                 </label>
                 <select
                   id="districtName"
@@ -177,16 +181,33 @@ function AdminResourceComponent() {
                   required
                 >
                   <option value="">Select the district name</option>
-                  <option value="Colombo">Colombo</option>
-                  <option value="Galle">Galle</option>
-                  <option value="Kandy">Kandy</option>
-                  <option value="Matara">Matara</option>
-                  <option value="Jaffna">Jaffna</option>
-                  <option value="Anuradhapura">Anuradhapura</option>
-                  <option value="Ampara">Ampara</option>
-                  <option value="Trincomalee">Trincomalee</option>
+                  <option value="Tel Aviv">Tel Aviv</option>
+                  <option value="Jerusalem">Jerusalem</option>
+                  <option value="Haifa">Haifa</option>
+                  <option value="Nazareth">Nazareth</option>
+                  <option value="Beersheba">Beersheba</option>
+                  <option value="Netanya">Netanya</option>
                 </select>
               </div>
+              
+              <div>
+                <label htmlFor="countryName" className="block text-sm font-medium text-gray-700">
+                  Country
+                </label>
+                <select
+                  id="countryName"
+                  name="countryName"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  value={countryName}
+                  onChange={(e) => setCountryName(e.target.value)}
+                  required
+                >
+                  <option value="">Select the Country</option>
+                  <option value="Israel">Israel</option>
+                  <option value="Palestine">Palestine</option>
+                </select>
+              </div>
+
               <div>
                 <button
                   type="submit"

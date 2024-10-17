@@ -1,7 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
+import React from "react";
+import { useState, useEffect, useRef } from "react";
+import { Send, ShieldPlus, User, Loader2, X } from "lucide-react";
+import { useChatbot } from "../Context/ChatbotContext";
 
 function Chatbot() {
+    const { isChatbotOpen, toggleChatbot } = useChatbot(); // Get visibility state and toggle function
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -12,78 +15,18 @@ function Chatbot() {
     };
 
     useEffect(() => {
-        // Add initial message when the component mounts
-        if (messages.length === 0)
-        {
+        if (messages.length === 0) {
             const initialMessage = {
                 role: "assistant",
-                content: "How can I help you to get medical information?"
+                content: "How can I help you to get medical information?",
             };
             setMessages([initialMessage]);
         }
-    }, [messages.length]); 
+    }, [messages.length]);
 
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
-
-    const formatMessage = (content) => {
-        // Split content into sections (title and body)
-        const parts = content.split(':');
-        if (parts.length > 1) {
-            const title = parts[0].trim();
-            const body = parts.slice(1).join(':').trim();
-
-            return (
-                <div className="space-y-3">
-                    <h3 className="font-semibold text-lg">{title}:</h3>
-                    {formatBody(body)}
-                </div>
-            );
-        }
-        return formatBody(content);
-    };
-
-    const formatBody = (text) => {
-        // Split text into paragraphs
-        const paragraphs = text.split('\n\n').filter(p => p.trim());
-        
-        return (
-            <div className="space-y-4">
-                {paragraphs.map((paragraph, index) => {
-                    // Check if paragraph contains numbered steps
-                    if (paragraph.match(/^\d+\./m)) {
-                        const steps = paragraph
-                            .split(/(?=\d+\.)/)
-                            .filter(step => step.trim())
-                            .map(step => {
-                                const [number, ...textParts] = step.trim().split(' ');
-                                return {
-                                    number: number.replace('.', ''),
-                                    text: textParts.join(' ')
-                                };
-                            });
-
-                        return (
-                            <div key={index} className="space-y-2">
-                                {steps.map((step, stepIndex) => (
-                                    <div key={stepIndex} className="flex items-start space-x-3">
-                                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-semibold">
-                                            {step.number}
-                                        </span>
-                                        <p className="flex-1 text-gray-700">{step.text}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        );
-                    } else {
-                        // Regular paragraph
-                        return <p key={index} className="text-gray-700">{paragraph}</p>;
-                    }
-                })}
-            </div>
-        );
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -127,32 +70,116 @@ function Chatbot() {
         }
     };
 
+    if (!isChatbotOpen) {
+        return null; // Do not render the chatbot if it's not open
+    }
+
+    const formatMessage = (content) => {
+        // Split content into sections (title and body)
+        const parts = content.split(":");
+        if (parts.length > 1) {
+            const title = parts[0].trim();
+            const body = parts.slice(1).join(":").trim();
+
+            return (
+                <div className="space-y-3">
+                    <h3 className="font-semibold text-lg">{title}:</h3>
+                    {formatBody(body)}
+                </div>
+            );
+        }
+        return formatBody(content);
+    };
+
+    const formatBody = (text) => {
+        // Split text into paragraphs
+        const paragraphs = text.split("\n\n").filter((p) => p.trim());
+        return (
+            <div className="space-y-4">
+                {paragraphs.map((paragraph, index) => {
+                    // Check if paragraph contains numbered steps
+                    if (paragraph.match(/^\d+\./m)) {
+                        const steps = paragraph
+                            .split(/(?=\d+\.)/)
+                            .filter((step) => step.trim())
+                            .map((step) => {
+                                const [number, ...textParts] = step
+                                    .trim()
+                                    .split(" ");
+                                return {
+                                    number: number.replace(".", ""),
+                                    text: textParts.join(" "),
+                                };
+                            });
+
+                        return (
+                            <div key={index} className="space-y-2">
+                                {steps.map((step, stepIndex) => (
+                                    <div
+                                        key={stepIndex}
+                                        className="flex items-start space-x-3"
+                                    >
+                                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-semibold">
+                                            {step.number}
+                                        </span>
+                                        <p className="flex-1 text-gray-700">
+                                            {step.text}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        );
+                    } else {
+                        // Regular paragraph
+                        return (
+                            <p key={index} className="text-gray-700">
+                                {paragraph}
+                            </p>
+                        );
+                    }
+                })}
+            </div>
+        );
+    };
+
     return (
-        <div className="flex flex-col h-[600px] max-w-2xl mx-auto my-2 bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="bg-blue-600 px-6 py-4 flex items-center">
-                <Bot className="h-6 w-6 text-white mr-3" />
-                <h1 className="text-xl font-semibold text-white">Medical Assistant</h1>
+        <div className="fixed bottom-5 right-5 w-[500px] h-[600px] bg-white rounded-lg shadow-lg overflow-hidden z-50">
+            <div className="bg-blue-600 px-4 py-2 flex justify-between items-center">
+                <h1 className="text-lg text-white">Medical Assistant</h1>
+                <button onClick={toggleChatbot}>
+                    <X className="text-white w-6 h-6" />
+                </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
-                <div className="space-y-6">
+            <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+                <div className="space-y-4">
                     {messages.map((message, index) => (
                         <div
                             key={index}
                             className={`flex ${
-                                message.role === "user" ? "justify-end" : "justify-start"
+                                message.role === "user"
+                                    ? "justify-end"
+                                    : "justify-start"
                             }`}
                         >
-                            <div className={`flex items-start max-w-[85%] ${
-                                message.role === "user" ? "flex-row-reverse" : "flex-row"
-                            }`}>
-                                <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                                    message.role === "user" ? "ml-2 bg-blue-600" : "mr-2 bg-blue-500"
-                                }`}>
+                            <div
+                                className={`flex items-start max-w-[85%] ${
+                                    message.role === "user"
+                                        ? "flex-row-reverse"
+                                        : "flex-row"
+                                }`}
+                            >
+                                <div
+                                    className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
+                                        message.role === "user"
+                                            ? "ml-2 bg-blue-600"
+                                            : "mr-2 bg-blue-500"
+                                    }`}
+                                >
                                     {message.role === "user" ? (
                                         <User className="h-5 w-5 text-white" />
                                     ) : (
-                                        <Bot className="h-5 w-5 text-white" />
+                                        <ShieldPlus className="h-5 w-5 text-white" />
                                     )}
                                 </div>
                                 <div
@@ -175,12 +202,14 @@ function Chatbot() {
                         <div className="flex justify-start">
                             <div className="flex items-start">
                                 <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center mr-2">
-                                    <Bot className="h-5 w-5 text-white" />
+                                    <ShieldPlus className="h-5 w-5 text-white" />
                                 </div>
                                 <div className="bg-white shadow-md rounded-lg rounded-bl-none px-4 py-3">
                                     <div className="flex items-center space-x-2">
                                         <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
-                                        <span className="text-gray-500">Thinking...</span>
+                                        <span className="text-gray-500">
+                                            Thinking...
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -190,7 +219,7 @@ function Chatbot() {
                 </div>
             </div>
 
-            <div className="border-t border-gray-200 px-6 py-4 bg-white">
+            <div className="border-t border-gray-200 px-4 py-2 bg-white">
                 <form onSubmit={handleSubmit} className="flex space-x-4">
                     <input
                         type="text"

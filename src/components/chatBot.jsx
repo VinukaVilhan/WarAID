@@ -12,6 +12,18 @@ function Chatbot() {
     };
 
     useEffect(() => {
+        // Add initial message when the component mounts
+        if (messages.length === 0)
+        {
+            const initialMessage = {
+                role: "assistant",
+                content: "How can I help you to get medical information?"
+            };
+            setMessages([initialMessage]);
+        }
+    }, [messages.length]); 
+
+    useEffect(() => {
         scrollToBottom();
     }, [messages]);
 
@@ -119,7 +131,7 @@ function Chatbot() {
         <div className="flex flex-col h-[600px] max-w-2xl mx-auto my-2 bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="bg-blue-600 px-6 py-4 flex items-center">
                 <Bot className="h-6 w-6 text-white mr-3" />
-                <h1 className="text-xl font-semibold text-white">War Aid Assistant</h1>
+                <h1 className="text-xl font-semibold text-white">Medical Assistant</h1>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 bg-gray-50">

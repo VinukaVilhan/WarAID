@@ -1,17 +1,59 @@
-import React, { useState, useEffect, useMemo } from "react";
-import {
-    AlertOctagon,
-    RotateCw,
-    ArrowLeftCircle,
-    ArrowRightCircle,
-    Link,
-    ArrowDown,
-    ArrowUp,
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { RotateCw, AlertOctagon, ExternalLink } from "lucide-react";
 
-// Custom hook for fetching news
+const categorizeNews = (articles) => {
+    return {
+        "All News": articles,
+        "Conflict Updates": articles.filter(
+            (article) =>
+                article.title.match(
+                    /conflict|war|battle|fighting|combat|clash|violence|military/i
+                ) ||
+                article.description.match(
+                    /conflict|war|battle|fighting|combat|clash|violence|military/i
+                )
+        ),
+        "Humanitarian Aid": articles.filter(
+            (article) =>
+                article.title.match(
+                    /aid|relief|humanitarian|support|assistance|help|recovery|rescue/i
+                ) ||
+                article.description.match(
+                    /aid|relief|humanitarian|support|assistance|help|recovery|rescue/i
+                )
+        ),
+        "Ceasefire Efforts": articles.filter(
+            (article) =>
+                article.title.match(
+                    /ceasefire|truce|peace|negotiation|peace talks|diplomacy|mediation|agreement/i
+                ) ||
+                article.description.match(
+                    /ceasefire|truce|peace|negotiation|peace talks|diplomacy|mediation|agreement/i
+                )
+        ),
+        "Civilian Impact": articles.filter(
+            (article) =>
+                article.title.match(
+                    /civilian|casualty|displacement|refugee|non-combatant|victims|population|affected|harm/i
+                ) ||
+                article.description.match(
+                    /civilian|casualty|displacement|refugee|non-combatant|victims|population|affected|harm/i
+                )
+        ),
+        "International Response": articles.filter(
+            (article) =>
+                article.title.match(
+                    /international|UN|United Nations|NATO|global|foreign|sanctions|diplomacy|coalition|allies/i
+                ) ||
+                article.description.match(
+                    /international|UN|United Nations|NATO|global|foreign|sanctions|diplomacy|coalition|allies/i
+                )
+        ),
+    };
+};
+
 const useFetchNews = (url) => {
-    const [news, setNews] = useState([]);
+    const [news, setNews] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -24,7 +66,8 @@ const useFetchNews = (url) => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            setNews(data.articles || []);
+            const categorizedNews = categorizeNews(data.articles || []);
+            setNews(categorizedNews);
         } catch (e) {
             setError(e.message || "Failed to fetch news");
         } finally {
@@ -39,90 +82,66 @@ const useFetchNews = (url) => {
     return { news, loading, error, fetchNews };
 };
 
-const NewsComponent = () => {
+const NewsItem = ({ article, isLarge = false }) => (
+    <div
+        className={`bg-white rounded-lg shadow-lg overflow-hidden ${
+            isLarge ? "col-span-5" : ""
+        }`}
+    >
+        {article.urlToImage && (
+            <div
+                className={`bg-cover bg-center ${isLarge ? "h-72" : "h-40"}`}
+                style={{ backgroundImage: `url(${article.urlToImage})` }}
+            />
+        )}
+        <div className="p-4">
+            <a
+                href={article.url}
+                target="_blank"
+                className="text-xs text-indigo-600 uppercase font-medium hover:text-gray-900 transition duration-500 ease-in-out"
+            >
+                {article.source.name}
+            </a>
+            <a
+                href={article.url}
+                target="_blank"
+                className={`block text-gray-900 font-bold ${
+                    isLarge ? "text-2xl" : "text-lg"
+                } mb-2 hover:text-indigo-600 transition duration-500 ease-in-out`}
+            >
+                {article.title}
+            </a>
+            {isLarge && (
+                <p className="text-gray-700 text-base mt-2">
+                    {article.description}
+                </p>
+            )}
+            <a
+                href={article.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200 mt-2"
+            >
+                Read more
+                <ExternalLink className="h-4 w-4 ml-1" />
+            </a>
+        </div>
+    </div>
+);
+
+const NewsGrid = () => {
+    const [category, setCategory] = useState("All News");
     const { news, loading, error, fetchNews } = useFetchNews(
         "http://localhost:8060/news"
     );
-    const [currentIndices, setCurrentIndices] = useState({});
-    const [expandedCategory, setExpandedCategory] = useState(null);
 
-    const categorizeNews = (articles) => {
-        const categories = {
-            "Conflict Updates": [],
-            "Humanitarian Aid": [],
-            "Ceasefire Efforts": [],
-            "Civilian Impact": [],
-            "International Response": [],
-        };
-
-        articles.forEach((article) => {
-            const lowerText = (
-                article.description +
-                " " +
-                article.title
-            ).toLowerCase();
-            if (
-                lowerText.includes("attack") ||
-                lowerText.includes("military") ||
-                lowerText.includes("strike")
-            ) {
-                categories["Conflict Updates"].push(article);
-            } else if (
-                lowerText.includes("aid") ||
-                lowerText.includes("humanitarian") ||
-                lowerText.includes("relief")
-            ) {
-                categories["Humanitarian Aid"].push(article);
-            } else if (
-                lowerText.includes("ceasefire") ||
-                lowerText.includes("peace") ||
-                lowerText.includes("negotiation")
-            ) {
-                categories["Ceasefire Efforts"].push(article);
-            } else if (
-                lowerText.includes("civilian") ||
-                lowerText.includes("refugee") ||
-                lowerText.includes("casualty")
-            ) {
-                categories["Civilian Impact"].push(article);
-            } else if (
-                lowerText.includes("un") ||
-                lowerText.includes("united nations") ||
-                lowerText.includes("international")
-            ) {
-                categories["International Response"].push(article);
-            }
-        });
-
-        return categories;
-    };
-
-    const categorizedNews = useMemo(() => categorizeNews(news), [news]);
-
-    useEffect(() => {
-        const initialIndices = {};
-        Object.keys(categorizedNews).forEach((category) => {
-            initialIndices[category] = 0;
-        });
-        setCurrentIndices(initialIndices);
-    }, [news]);
-
-    const navigateNews = (category, direction) => {
-        setCurrentIndices((prevIndices) => ({
-            ...prevIndices,
-            [category]:
-                (prevIndices[category] +
-                    direction +
-                    categorizedNews[category].length) %
-                categorizedNews[category].length,
-        }));
-    };
+    const categories = Object.keys(news);
 
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <RotateCw className="animate-spin h-8 w-8 text-gray-600" />
-                <p className="ml-2 text-lg font-medium">
+                <RotateCw className="animate-spin h-12 w-12 text-blue-600" />
+                <p className="ml-4 text-xl font-medium text-gray-700">
                     Loading latest updates...
                 </p>
             </div>
@@ -132,17 +151,17 @@ const NewsComponent = () => {
     if (error) {
         return (
             <div
-                className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md"
+                className="bg-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-lg shadow-md"
                 role="alert"
             >
-                <div className="flex items-center">
-                    <AlertOctagon className="h-6 w-6 mr-2 text-red-600" />
-                    <p className="font-bold">Unable to load news</p>
+                <div className="flex items-center mb-3">
+                    <AlertOctagon className="h-8 w-8 mr-3 text-red-600" />
+                    <p className="font-bold text-xl">Unable to load news</p>
                 </div>
-                <p className="mt-2">{error}</p>
+                <p className="mb-4 text-lg">{error}</p>
                 <button
                     onClick={fetchNews}
-                    className="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
+                    className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-200 text-lg"
                 >
                     Retry
                 </button>
@@ -150,105 +169,40 @@ const NewsComponent = () => {
         );
     }
 
+    const mainArticle = news[category]?.[0];
+    const sideArticles = news[category]?.slice(1, 7);
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(categorizedNews).map(([category, articles]) => (
-                <div
-                    key={category}
-                    className="bg-gray-100 rounded-lg shadow-lg overflow-hidden"
-                >
-                    <div className="bg-gray-800 text-white p-4">
-                        <h2 className="text-lg font-semibold flex items-center justify-between">
-                            {category}
-                            <span className="text-sm bg-gray-600 px-2 py-1 rounded-full">
-                                {articles.length}
-                            </span>
-                        </h2>
+        <div className="max-w-screen-xl mx-auto p-5 sm:p-10 md:p-16">
+            <div className="mb-5">
+                {categories.map((cat) => (
+                    <button
+                        key={cat}
+                        onClick={() => setCategory(cat)}
+                        className={`px-6 py-3 mr-3 mb-3 font-semibold rounded-lg shadow-md transition-transform duration-200 transform ${
+                            category === cat
+                                ? "bg-blue-600 text-white shadow-lg scale-105"
+                                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                        } hover:shadow-lg hover:bg-blue-700 hover:text-white`}
+                    >
+                        {cat}
+                    </button>
+                ))}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-5">
+                {mainArticle && (
+                    <div className="sm:col-span-5">
+                        <NewsItem article={mainArticle} isLarge={true} />
                     </div>
-                    <div className="p-4">
-                        {articles.length === 0 ? (
-                            <p className="text-gray-500">
-                                No updates available for this category.
-                            </p>
-                        ) : (
-                            <div>
-                                <div className="flex items-center justify-between mb-4">
-                                    <button
-                                        onClick={() =>
-                                            navigateNews(category, -1)
-                                        }
-                                        className="p-2 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200"
-                                        disabled={articles.length <= 1}
-                                        aria-label="Previous article"
-                                    >
-                                        <ArrowLeftCircle className="h-5 w-5 text-gray-800" />
-                                    </button>
-                                    <span className="text-sm text-gray-500">
-                                        {currentIndices[category] + 1} of{" "}
-                                        {articles.length}
-                                    </span>
-                                    <button
-                                        onClick={() =>
-                                            navigateNews(category, 1)
-                                        }
-                                        className="p-2 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200"
-                                        disabled={articles.length <= 1}
-                                        aria-label="Next article"
-                                    >
-                                        <ArrowRightCircle className="h-5 w-5 text-gray-800" />
-                                    </button>
-                                </div>
-                                {articles[currentIndices[category]] && (
-                                    <div>
-                                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                            {
-                                                articles[
-                                                    currentIndices[category]
-                                                ].title
-                                            }
-                                        </h3>
-                                        <p className="text-sm text-gray-500 mb-2">
-                                            {new Date(
-                                                articles[
-                                                    currentIndices[category]
-                                                ].publishedAt
-                                            ).toLocaleDateString()}{" "}
-                                            |{" "}
-                                            {
-                                                articles[
-                                                    currentIndices[category]
-                                                ].source.name
-                                            }
-                                        </p>
-                                        <p className="text-gray-700 mb-4">
-                                            {
-                                                articles[
-                                                    currentIndices[category]
-                                                ].description
-                                            }
-                                        </p>
-                                        <a
-                                            href={
-                                                articles[
-                                                    currentIndices[category]
-                                                ].url
-                                            }
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex items-center text-gray-800 hover:text-gray-900"
-                                        >
-                                            Read more
-                                            <Link className="h-5 w-5 ml-1" />
-                                        </a>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                )}
+                <div className="sm:col-span-7 grid grid-cols-2 lg:grid-cols-3 gap-5">
+                    {sideArticles?.map((article, index) => (
+                        <NewsItem key={index} article={article} />
+                    ))}
                 </div>
-            ))}
+            </div>
         </div>
     );
 };
 
-export default NewsComponent;
+export default NewsGrid;

@@ -1,6 +1,6 @@
 [package]
-org = "vinuk"
-name = "whisper"
+org = "tharuka_deshan"
+name = "location_service"
 version = "0.1.0"
 distribution = "2201.10.0"
 

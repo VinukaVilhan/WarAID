@@ -8,7 +8,7 @@ configurable string apiKey = ?;
         allowOrigins: ["*"]
     }
 }
-service / on new http:Listener(8010) {
+service / on new http:Listener(8060) {
     resource function get news() returns json|error {
         log:printInfo("Received request for WarAID news");
         

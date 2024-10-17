@@ -2,10 +2,10 @@ import ballerina/http;
 import ballerina/jwt;
 import ballerina/log;
 
-// Updated JWT Validator configuration
+
 jwt:ListenerJwtAuthProvider jwtValidator = new({
-    issuer: "https://api.asgardeo.io/t/dana/oauth2/token",  // Updated issuer
-    audience: "h14EPNFXyNu73kfxGTk_bEcgjfUa", // Your client ID
+    issuer: "https://api.asgardeo.io/t/dana/oauth2/token", 
+    audience: "h14EPNFXyNu73kfxGTk_bEcgjfUa",
     signatureConfig: {
         jwksConfig: {
             url: "https://api.asgardeo.io/t/dana/oauth2/jwks"

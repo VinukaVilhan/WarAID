@@ -141,7 +141,7 @@ function MapUpdater({ locations, userLocation }) {
     return null;
 }
 
-function ResourceLocatorPage() {
+function ResourceLocatorComponent() {
     const [locations, setLocations] = useState([]);
     const [filteredLocations, setFilteredLocations] = useState([]);
     const [filter, setFilter] = useState({ type: '', district: '', country: '' });
@@ -487,4 +487,4 @@ function ResourceLocatorPage() {
     );
 }
 
-export default ResourceLocatorPage;
+export default ResourceLocatorComponent;

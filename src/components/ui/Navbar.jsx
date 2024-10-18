@@ -145,12 +145,6 @@ const Navbar = () => {
                             Documentation Tool
                         </Link>
                         <Link
-                            to="/ChatBot"
-                            className={navLinkStyles("/ChatBot")}
-                        >
-                            Chatbot
-                        </Link>
-                        <Link
                             to="/EmergencyContacts"
                             className={navLinkStyles("/EmergencyContacts")}
                         >

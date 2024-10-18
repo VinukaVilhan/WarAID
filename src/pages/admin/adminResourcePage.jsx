@@ -1,13 +1,13 @@
 import Navbar from "../../components/ui/Navbar";
 import AdminResourceComponent from "../../components/adminResourceComponent";
 
-function AdminResourceLocatorPage(){
+function AdminResourceLocatorPage() {
     return (
         <div>
-          <Navbar/>
-          <AdminResourceComponent/>
+            <Navbar />
+            <AdminResourceComponent />
         </div>
-      );
+    );
 }
 
 export default AdminResourceLocatorPage;

@@ -187,6 +187,18 @@ function AdminResourceComponent() {
                   <option value="Nazareth">Nazareth</option>
                   <option value="Beersheba">Beersheba</option>
                   <option value="Netanya">Netanya</option>
+<option value="Gaza">Gaza</option>
+                  <option value="Sderot">Sderot</option>
+                  <option value="Ashdod">Ashdod</option>
+                  <option value="Ashkelon">Ashkelon</option>
+                  <option value="Khan Younis">Khan Younis (Gaza Strip)</option>
+                  <option value="Rafah">Rafah (Gaza Strip)</option>
+                  <option value="Hebron">Hebron (West Bank)</option>
+                  <option value="Ramallah">Ramallah (West Bank)</option>
+                  <option value="Nablus">Nablus (West Bank)</option>
+                  <option value="Jabalia">Jabalia (Gaza Strip)</option>
+                  <option value="Bethlehem">Bethlehem (West Bank)</option>
+                  
                 </select>
               </div>
               

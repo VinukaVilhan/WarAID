@@ -8,7 +8,7 @@ Before running the application, ensure you have the following installed:
 
 - [Ballerina](https://ballerina.io/downloads/) (for backend)
 - [Node.js](https://nodejs.org/en/) (for frontend)
-- [Vite](https://vitejs.dev/guide/) (for frontend build)
+- [Vite (JavaScript + SWC)](https://vitejs.dev/guide/) (for frontend build)
 - [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/) (for managing packages)
 
 ## Installation

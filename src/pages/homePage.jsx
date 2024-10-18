@@ -46,15 +46,6 @@ const HomePage = () => {
                             Find Resources
                         </button>
                     </Link>
-                    <Link to="/ChatBot" aria-label="Help">
-                        <button className="flex items-center bg-green-600 hover:bg-green-800 text-white font-bold py-4 px-8 rounded-lg shadow-lg transition duration-300 ease-in-out">
-                            <FontAwesomeIcon
-                                icon={faLifeRing}
-                                className="mr-2"
-                            />
-                            Help
-                        </button>
-                    </Link>
                 </div>
             </header>
 

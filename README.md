@@ -7,7 +7,7 @@ WARAID is a web application designed for emergency assistance, providing alert m
 Before running the application, ensure you have the following installed:
 
 - [Ballerina](https://ballerina.io/downloads/) (for backend)
-- [Node.js](https://nodejs.org/en/) (for frontend)
+- [React](https://react.dev/) (for frontend)
 - [Vite (JavaScript + SWC)](https://vitejs.dev/guide/) (for frontend build)
 - [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/) (for managing packages)
 

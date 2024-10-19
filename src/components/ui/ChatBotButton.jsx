@@ -6,8 +6,12 @@ const ChatbotButton = () => {
     const { toggleChatbot } = useChatbot(); // Access the toggle function
 
     return (
-        <button onClick={toggleChatbot} className="fixed bottom-10 right-10 bg-blue-600 text-white rounded-full p-4 shadow-lg hover:bg-blue-700 z-10">
-            <ShieldPlus className="h-6 w-6" />
+        <button
+            onClick={toggleChatbot}
+            className="fixed bottom-10 right-10 bg-blue-600 text-white rounded-full p-4 shadow-lg hover:bg-blue-700 z-10 flex items-center justify-center"
+        >
+            <ShieldPlus className="h-10 w-10 mr-2" />
+            <p className="font-bold">Medical Assistant</p>
         </button>
     );
 };

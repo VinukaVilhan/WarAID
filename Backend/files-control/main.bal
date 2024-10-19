@@ -36,15 +36,6 @@ final readonly & map<string> contentTypes = {
     "txt": "text/plain"
 };
 
-// @http:ServiceConfig {
-//     cors: {
-//         allowOrigins: ["http://localhost:5173"],
-//         allowCredentials: false,
-//         allowHeaders: ["Content-Type"],
-//         allowMethods: ["POST", "GET", "OPTIONS"]
-//     }
-// }
-
 
 @http:ServiceConfig {
     cors: {
@@ -278,7 +269,7 @@ service / on new http:Listener(port) {
 
     
 
-    // View file handler (for images and PDFs)
+    // View file handler
     resource function get view/[string username]/[string filename](http:Request req) returns http:Response|error {
         http:Response response = new;
         response.setHeader("Access-Control-Allow-Origin", "*");

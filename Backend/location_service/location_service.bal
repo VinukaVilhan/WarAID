@@ -131,5 +131,22 @@ service /api on new http:Listener(9090) {
             select location;
     }
 
+    // New endpoint to get districts by country
+    resource function get districts/byCountry(string countryName) returns string[]|error {
+        stream<record { string DISTRICTNAME; }, sql:Error?> districtStream = self.dbClient->query(`
+            SELECT DISTINCT DISTRICTNAME 
+            FROM LOCATIONS 
+            WHERE COUNTRYNAME = ${countryName}
+            ORDER BY DISTRICTNAME
+        `);
+        
+        string[] districts = [];
+        check from record { string DISTRICTNAME; } district in districtStream
+            do {
+                districts.push(district.DISTRICTNAME);
+            };
+        return districts;
+    }
+
 
 }

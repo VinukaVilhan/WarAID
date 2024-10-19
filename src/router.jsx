@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import ChatBot from './pages/chatBotPage';
 import Home from './pages/homePage';
 import DocumentationToolPage from './pages/DocumentationToolPage';
 import ResourceLocatorPage from './pages/resourceLocatorPage';
@@ -15,7 +14,6 @@ function AppRouter() {
     <Routes>
       
       <Route path="/" element={<Home />} />
-      <Route path="/ChatBot" element={<ChatBot />} />
       <Route path="/Documentation" element={<DocumentationToolPage />} />
       <Route path='/ResourceLocator' element={<ResourceLocatorPage/>}/>
       <Route path="/EmergencyContacts" element={<EmergencyContacts />} />

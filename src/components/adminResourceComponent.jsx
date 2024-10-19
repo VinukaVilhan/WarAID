@@ -10,11 +10,34 @@ function AdminResourceComponent() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [locations, setLocations] = useState([]);
-  
+
+  // District mappings by country
+  const districtsByCountry = {
+    'Israel': [
+      'Tel Aviv',
+      'Jerusalem',
+      'Haifa',
+      'Beersheba',
+      'Netanya'
+    ],
+    'Palestine': [
+      'Gaza',
+      'Ramallah',
+      'Nablus',
+      'Hebron',
+      'Bethlehem',
+      'Jericho'
+    ]
+  };
 
   useEffect(() => {
     fetchLocations();
   }, []);
+
+  // Reset district when country changes
+  useEffect(() => {
+    setDistrictName('');
+  }, [countryName]);
 
   const fetchLocations = async () => {
     try {
@@ -89,9 +112,8 @@ function AdminResourceComponent() {
       }
 
       setMessage('Location deleted successfully!');
-      fetchLocations(); // Refresh the locations list
+      fetchLocations();
       
-      // Clear message after 3 seconds
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
       console.error('Error deleting location:', error);
@@ -119,7 +141,7 @@ function AdminResourceComponent() {
               </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
+              <div>
                 <label htmlFor="latitude" className="block text-sm font-medium text-gray-700">
                   Latitude
                 </label>
@@ -168,39 +190,7 @@ function AdminResourceComponent() {
                   <option value="Food">Food</option>
                 </select>
               </div>
-              <div>
-                <label htmlFor="district name" className="block text-sm font-medium text-gray-700">
-                  District 
-                </label>
-                <select
-                  id="districtName"
-                  name="districtName"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  value={districtName}
-                  onChange={(e) => setDistrictName(e.target.value)}
-                  required
-                >
-                  <option value="">Select the district name</option>
-                  <option value="Tel Aviv">Tel Aviv</option>
-                  <option value="Jerusalem">Jerusalem</option>
-                  <option value="Haifa">Haifa</option>
-                  <option value="Nazareth">Nazareth</option>
-                  <option value="Beersheba">Beersheba</option>
-                  <option value="Netanya">Netanya</option>
-                  <option value="Gaza">Gaza</option>
-                  <option value="Sderot">Sderot</option>
-                  <option value="Ashdod">Ashdod</option>
-                  <option value="Ashkelon">Ashkelon</option>
-                  <option value="Khan Younis">Khan Younis (Gaza Strip)</option>
-                  <option value="Rafah">Rafah (Gaza Strip)</option>
-                  <option value="Hebron">Hebron (West Bank)</option>
-                  <option value="Ramallah">Ramallah (West Bank)</option>
-                  <option value="Nablus">Nablus (West Bank)</option>
-                  <option value="Jabalia">Jabalia (Gaza Strip)</option>
-                  <option value="Bethlehem">Bethlehem (West Bank)</option>
-                  
-                </select>
-              </div>
+             
               
               <div>
                 <label htmlFor="countryName" className="block text-sm font-medium text-gray-700">
@@ -217,6 +207,28 @@ function AdminResourceComponent() {
                   <option value="">Select the Country</option>
                   <option value="Israel">Israel</option>
                   <option value="Palestine">Palestine</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="district name" className="block text-sm font-medium text-gray-700">
+                  District 
+                </label>
+                <select
+                  id="districtName"
+                  name="districtName"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  value={districtName}
+                  onChange={(e) => setDistrictName(e.target.value)}
+                  required
+                  disabled={!countryName}
+                >
+                  <option value="">Select the district name</option>
+                  {countryName && districtsByCountry[countryName].map((district) => (
+                    <option key={district} value={district}>
+                      {district}
+                    </option>
+                  ))}
                 </select>
               </div>
 

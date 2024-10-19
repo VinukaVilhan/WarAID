@@ -1,15 +1,15 @@
 import ballerina/http;
 import ballerina/sql;
 import ballerinax/java.jdbc;
-import ballerinax/mysql.driver as _; // Add this line to import the MySQL driver
+import ballerinax/mysql.driver as _; 
 
-// MySQL database connection details (Replace with your AWS MySQL details)
+// MySQL database connection 
 configurable string host = ?;
 configurable string port = ?;
 configurable string username = ?;
 configurable string password = ?;
 configurable string database = ?;
-// MySQL JDBC URL format
+// MySQL JDBC URL 
 string jdbcUrl = string `jdbc:mysql://${host}:${port}/${database}`;
 
 function initDatabase(sql:Client dbClient) returns error? {

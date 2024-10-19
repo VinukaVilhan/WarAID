@@ -187,7 +187,7 @@ function AdminResourceComponent() {
                   <option value="Nazareth">Nazareth</option>
                   <option value="Beersheba">Beersheba</option>
                   <option value="Netanya">Netanya</option>
-<option value="Gaza">Gaza</option>
+                  <option value="Gaza">Gaza</option>
                   <option value="Sderot">Sderot</option>
                   <option value="Ashdod">Ashdod</option>
                   <option value="Ashkelon">Ashkelon</option>

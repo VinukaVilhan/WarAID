@@ -15,7 +15,7 @@ Before running the application, ensure you have the following installed:
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/WARAID.git
+    git clone https://github.com/VinukaVilhan/iwb236-scriptrippers.git
     cd WARAID
     ```
 
@@ -178,5 +178,5 @@ After installing the dependencies, you can start the frontend development server
 
 2. By default, Vite will start a local development server on port `5173`. Open your browser and go to:
     ```
-    http://localhost:3000
+    http://localhost:5173
     ```
